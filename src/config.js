@@ -45,6 +45,65 @@ export function achievementColor(pct) {
   return '#e74c3c';
 }
 
+const salesFields = (secLabel) => [
+  { key: 'sales_total',    label: 'ยอดขายรวมโรงงาน (Baht)' },
+  { key: 'sales_division', label: `ยอดขาย ${secLabel} Division (Baht)` },
+];
+const dlFields = [
+  { key: 'dl_salary',  label: 'DL Salary (Baht)' },
+  { key: 'dl_ot',      label: 'DL Overtime (Baht)' },
+  { key: 'dl_bonus',   label: 'DL Bonus (Baht)' },
+];
+const ohFields = [
+  { key: 'oh_usage',      label: 'OH Usage (Baht)' },
+  { key: 'oh_spare_part', label: 'OH Spare Part (Baht)' },
+  { key: 'oh_repair',     label: 'OH Repair (Baht)' },
+  { key: 'oh_other',      label: 'OH Other (Baht)' },
+];
+const growthFields = (secLabel) => [
+  { key: 'manpower_section',   label: `Headcount ${secLabel}`, integer: true },
+  { key: 'course_trained_count', label: 'Courses Completed (เดือนนี้)', integer: true },
+  { key: 'course_plan_annual', label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
+];
+
+export const RAW_FIELD_GROUPS = {
+  PD3: [
+    { group: 'ยอดขาย',         fields: salesFields('PD3') },
+    { group: 'Direct Labour',  fields: dlFields },
+    { group: 'Overhead',       fields: ohFields },
+    { group: '100P & Inventory', fields: [
+      { key: 'p100_amount',        label: '100P&CR Amount (Baht)' },
+      { key: 'inventory_balance',  label: 'Inventory Balance (Baht)' },
+    ]},
+    { group: 'Growth',         fields: growthFields('PD3') },
+  ],
+  PD4: [
+    { group: 'ยอดขาย',         fields: salesFields('PD4') },
+    { group: 'Direct Labour',  fields: dlFields },
+    { group: 'Overhead',       fields: ohFields },
+    { group: '100P & Inventory', fields: [
+      { key: 'p100_amount',        label: '100P&CR Amount (Baht)' },
+      { key: 'inventory_balance',  label: 'Inventory Balance (Baht)' },
+    ]},
+    { group: 'Growth',         fields: growthFields('PD4') },
+  ],
+  JIG: [
+    { group: 'ยอดขาย',   fields: salesFields('JIG') },
+    { group: 'Direct Labour', fields: dlFields },
+    { group: 'Overhead',      fields: ohFields },
+    { group: '100P',          fields: [
+      { key: 'p100_amount', label: '100P&CR Amount (Baht)' },
+    ]},
+    { group: 'Growth', fields: growthFields('JIG') },
+  ],
+  ALL: [
+    { group: 'Customer Satisfaction', fields: [
+      { key: 'cust_sat_q', label: 'Quality Score (%)' },
+      { key: 'cust_sat_d', label: 'Delivery Score (%)' },
+    ]},
+  ],
+};
+
 export function formatValue(item, val) {
   if (val == null) return '—';
   if (item.unit === '%') return `${Number(val).toFixed(2)}%`;

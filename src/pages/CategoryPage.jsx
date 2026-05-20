@@ -4,8 +4,82 @@ import { useApp } from '../App';
 import { CATEGORY_META, MONTHS_TH, SECTION_COLORS, calcAchievement, achievementColor, formatValue } from '../config';
 import { getKPIItems, getTargets, getActuals, buildMaps, getItemMonthly, getItemYTD } from '../services/kpiService';
 import { getOEEByYear } from '../services/oeeService';
+import { getRawInput, getRawInputs, buildDrillDown } from '../services/rawInputService';
 import MonthlyChart from '../components/MonthlyChart';
 import GaugeRing from '../components/GaugeRing';
+
+function DrillDownModal({ item, month, year, onClose }) {
+  const [dd, setDd] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!item || !month) return;
+    setLoading(true);
+    // Need all raws for cumulative calcs (Sales/Head, TS Academy)
+    getRawInputs(year).then(allRaws => {
+      const raw = allRaws.find(r => r.section === item.section && r.month === month && r.year === year);
+      setDd(buildDrillDown(item, raw, allRaws));
+      setLoading(false);
+    });
+  }, [item, month, year]);
+
+  if (!item) return null;
+  const monthLabel = MONTHS_TH[month - 1];
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+    }} onClick={onClose}>
+      <div style={{
+        background: 'var(--bg1)', borderRadius: 14, padding: 24, maxWidth: 480, width: '100%',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.4)', border: '1px solid var(--border)',
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>
+              📂 ข้อมูลดิบ • {monthLabel} {year}
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>{item.name_en}</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 18, color: 'var(--muted)', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+        </div>
+
+        {loading ? (
+          <div style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>กำลังโหลด...</div>
+        ) : !dd ? (
+          <div style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>
+            ยังไม่มีข้อมูลดิบสำหรับเดือนนี้
+            <div style={{ fontSize: 11, marginTop: 6 }}>กรอกข้อมูลได้ที่หน้า "กรอกข้อมูล Actual"</div>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text2)', marginBottom: 8 }}>{dd.title}</div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12 }}>
+              <tbody>
+                {dd.rows.map(([label, val], i) => (
+                  label === '—' ? (
+                    <tr key={i}><td colSpan={2} style={{ borderBottom: '1px solid var(--border)', padding: '4px 0' }} /></tr>
+                  ) : (
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border2)' }}>
+                      <td style={{ padding: '6px 0', fontSize: 13, color: 'var(--muted)' }}>{label}</td>
+                      <td style={{ padding: '6px 0', fontSize: 13, fontWeight: 600, textAlign: 'right', fontFamily: 'var(--font-display)' }}>{val}</td>
+                    </tr>
+                  )
+                ))}
+              </tbody>
+            </table>
+            {dd.formula && (
+              <div style={{ padding: '10px 12px', background: 'var(--bg2)', borderRadius: 8, fontSize: 12, fontFamily: 'monospace', color: 'var(--accent)', borderLeft: '3px solid var(--accent)' }}>
+                {dd.formula}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function CategoryPage() {
   const { cat }  = useParams();
@@ -18,6 +92,7 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(true);
   const [oeeError, setOeeError] = useState(null);
   const [activeId, setActiveId] = useState(null);
+  const [drillMonth, setDrillMonth] = useState(null);
 
   useEffect(() => {
     if (!meta) return;
@@ -148,6 +223,7 @@ export default function CategoryPage() {
                   <th>Actual</th>
                   <th>Target</th>
                   <th>Achievement</th>
+                  {active.source === 'computed' && <th style={{ width: 40 }}></th>}
                 </tr>
               </thead>
               <tbody>
@@ -168,12 +244,32 @@ export default function CategoryPage() {
                           ? <span style={{ color: clr, fontWeight: 700, fontFamily: 'var(--font-display)' }}>{Math.round(pct)}%</span>
                           : <span style={{ color: 'var(--muted)' }}>—</span>}
                       </td>
+                      {active.source === 'computed' && (
+                        <td>
+                          {d.actual != null && (
+                            <button
+                              onClick={() => setDrillMonth(i + 1)}
+                              title="ดูข้อมูลดิบ"
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, opacity: 0.5, padding: '2px 4px' }}
+                            >📂</button>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
+
+          {drillMonth && (
+            <DrillDownModal
+              item={active}
+              month={drillMonth}
+              year={year}
+              onClose={() => setDrillMonth(null)}
+            />
+          )}
         </>
       )}
     </div>
