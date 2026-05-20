@@ -70,8 +70,9 @@ export function computeActuals(raw, items, allRaws, month) {
 
       if (sec !== 'JIG') {
         const invNo = sec === 'PD3' ? '3.2' : '3.3';
-        if (findId(invNo) && raw.inventory_balance != null)
-          res[findId(invNo)] = raw.inventory_balance / raw.sales_division;
+        const invTotal = (raw.inventory_p410 || 0) + (raw.inventory_p412 || 0);
+        if (findId(invNo) && invTotal > 0)
+          res[findId(invNo)] = invTotal / raw.sales_division;
       }
     }
 
@@ -167,14 +168,18 @@ export function buildDrillDown(item, raw, allRaws) {
     };
   }
   if (['3.2', '3.3'].includes(no)) {
+    const invTotal = (raw.inventory_p410 || 0) + (raw.inventory_p412 || 0);
     return {
       title: 'Inventory Balance',
       rows: [
-        ['Inventory Balance', fmtB(raw.inventory_balance)],
+        ['Inventory P410 Line', fmtB(raw.inventory_p410)],
+        ['Inventory P412 Line', fmtB(raw.inventory_p412)],
+        ['—', '—'],
+        ['Total Inventory', fmtB(invTotal)],
         ['Division Sales', fmtB(raw.sales_division)],
       ],
-      formula: raw.sales_division > 0 && raw.inventory_balance != null
-        ? `Ratio = ${fmtB(raw.inventory_balance)} / ${fmtB(raw.sales_division)} = ${(raw.inventory_balance / raw.sales_division).toFixed(4)}`
+      formula: raw.sales_division > 0 && invTotal > 0
+        ? `Ratio = ${fmtB(invTotal)} / ${fmtB(raw.sales_division)} = ${(invTotal / raw.sales_division).toFixed(4)}`
         : null,
     };
   }

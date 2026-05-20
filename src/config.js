@@ -45,9 +45,11 @@ export function achievementColor(pct) {
   return '#e74c3c';
 }
 
+// sales_total = ยอดขายสินค้า (ผลิต) รวมทั้งโรงงาน — ใช้เป็นตัวหารของ DL% และ OH%
+// sales_division = ยอดขาย Division (เฉพาะส่วนงาน) — ใช้เป็นตัวหารของ 100P%, Inventory, Sales/Head
 const salesFields = (secLabel) => [
-  { key: 'sales_total',    label: 'ยอดขายรวมโรงงาน (Baht)' },
-  { key: 'sales_division', label: `ยอดขาย ${secLabel} Division (Baht)` },
+  { key: 'sales_total',    label: 'ยอดขายสินค้า (ผลิต) รวมโรงงาน — ACT PRODUCT SALES (Baht)' },
+  { key: 'sales_division', label: `ยอดขาย ${secLabel} Division — ACT SALE DIV (Baht)` },
 ];
 const dlFields = [
   { key: 'dl_salary',  label: 'DL Salary (Baht)' },
@@ -61,9 +63,9 @@ const ohFields = [
   { key: 'oh_other',      label: 'OH Other (Baht)' },
 ];
 const growthFields = (secLabel) => [
-  { key: 'manpower_section',   label: `Headcount ${secLabel}`, integer: true },
+  { key: 'manpower_section',     label: `Headcount ${secLabel} (Permanent + Outsource)`, integer: true },
   { key: 'course_trained_count', label: 'Courses Completed (เดือนนี้)', integer: true },
-  { key: 'course_plan_annual', label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
+  { key: 'course_plan_annual',   label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
 ];
 
 export const RAW_FIELD_GROUPS = {
@@ -72,8 +74,9 @@ export const RAW_FIELD_GROUPS = {
     { group: 'Direct Labour',  fields: dlFields },
     { group: 'Overhead',       fields: ohFields },
     { group: '100P & Inventory', fields: [
-      { key: 'p100_amount',        label: '100P&CR Amount (Baht)' },
-      { key: 'inventory_balance',  label: 'Inventory Balance (Baht)' },
+      { key: 'p100_amount',    label: '100P&CR (Division level) (Baht)' },
+      { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
+      { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
     ]},
     { group: 'Growth',         fields: growthFields('PD3') },
   ],
@@ -82,8 +85,9 @@ export const RAW_FIELD_GROUPS = {
     { group: 'Direct Labour',  fields: dlFields },
     { group: 'Overhead',       fields: ohFields },
     { group: '100P & Inventory', fields: [
-      { key: 'p100_amount',        label: '100P&CR Amount (Baht)' },
-      { key: 'inventory_balance',  label: 'Inventory Balance (Baht)' },
+      { key: 'p100_amount',    label: '100P&CR (Division level) (Baht)' },
+      { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
+      { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
     ]},
     { group: 'Growth',         fields: growthFields('PD4') },
   ],
@@ -92,7 +96,7 @@ export const RAW_FIELD_GROUPS = {
     { group: 'Direct Labour', fields: dlFields },
     { group: 'Overhead',      fields: ohFields },
     { group: '100P',          fields: [
-      { key: 'p100_amount', label: '100P&CR Amount (Baht)' },
+      { key: 'p100_amount', label: '100P&CR (Division level) (Baht)' },
     ]},
     { group: 'Growth', fields: growthFields('JIG') },
   ],
