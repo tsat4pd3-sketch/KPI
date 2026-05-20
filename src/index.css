@@ -1,0 +1,165 @@
+/* ─── Design System (same as 4M Management) ─────────────────── */
+:root {
+  --bg:      #050505;
+  --bg2:     #0a0a0a;
+  --bg3:     #111111;
+  --card:    #0d0d0d;
+  --border:  #1e1e1e;
+  --border2: #2a2a2a;
+  --accent:  #e31937;
+  --text:    #ffffff;
+  --text2:   #a8a8a8;
+  --muted:   #555555;
+  --green:   #22c55e;
+  --amber:   #f59e0b;
+  --red:     #e74c3c;
+  --blue:    #4d9fff;
+  --purple:  #a855f7;
+
+  --font-body:    'Sarabun', sans-serif;
+  --font-display: 'Inter', sans-serif;
+  --sidebar-w: 220px;
+  --radius:    10px;
+  --radius-lg: 15px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.6);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.8);
+}
+
+[data-theme="light"] {
+  --bg:      #f2f2f2;
+  --bg2:     #e8e8e8;
+  --bg3:     #dcdcdc;
+  --card:    #ffffff;
+  --border:  #dedede;
+  --border2: #c8c8c8;
+  --text:    #111111;
+  --text2:   #505050;
+  --muted:   #909090;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.10);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.14);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, .card, nav, main, input, select, textarea, button, td, th {
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.15s ease;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root { width: 100%; min-height: 100vh; }
+
+.nav-link {
+  color: var(--text2);
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+.nav-link:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+table { width: 100%; border-collapse: collapse; }
+th {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+input, select, textarea {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 9px 12px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+input::placeholder { color: var(--muted); }
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.12s;
+}
+button:hover { opacity: 0.88; }
+button:active { transform: scale(0.97); }
+button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.page-content {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (max-width: 768px) { .page-content { padding: 16px; } }
+
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+.modal {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: min(440px, 94vw);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 768px) {
+  html, body { font-size: 14px; }
+  th { font-size: 10px; padding: 8px 10px; }
+  td { padding: 8px 10px; font-size: 13px; }
+}
