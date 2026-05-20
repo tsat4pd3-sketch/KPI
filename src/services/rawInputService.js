@@ -76,6 +76,29 @@ export function computeActuals(raw, items, allRaws, month) {
       }
     }
 
+    // PPM — PD3 (3.4) and PD4 (3.5)
+    if (['PD3', 'PD4'].includes(sec)) {
+      const ppmNo = sec === 'PD3' ? '3.4' : '3.5';
+      const ppmId = findId(ppmNo);
+      if (ppmId && (raw.ppm_production || 0) > 0 && raw.ppm_defect != null)
+        res[ppmId] = raw.ppm_defect / raw.ppm_production * 1e6;
+    }
+
+    // MTBF, MTTR, PM — JIG only
+    if (sec === 'JIG') {
+      const btId = findId('3.8');
+      if (btId && (raw.breakdown_count || 0) > 0 && raw.mtbf_uptime != null)
+        res[btId] = raw.mtbf_uptime / raw.breakdown_count;
+
+      const trId = findId('3.9');
+      if (trId && (raw.breakdown_count || 0) > 0 && raw.mttr_repair_time != null)
+        res[trId] = raw.mttr_repair_time / raw.breakdown_count;
+
+      const pmId = findId('4.0');
+      if (pmId && (raw.pm_planned || 0) > 0 && raw.pm_completed != null)
+        res[pmId] = raw.pm_completed / raw.pm_planned * 100;
+    }
+
     // Sales/Head — cumulative YTD
     const shNo = sec === 'PD3' ? '4.2a' : sec === 'PD4' ? '4.2b' : '4.2c';
     const shId = findId(shNo);
@@ -180,6 +203,54 @@ export function buildDrillDown(item, raw, allRaws) {
       ],
       formula: raw.sales_division > 0 && invTotal > 0
         ? `Ratio = ${fmtB(invTotal)} / ${fmtB(raw.sales_division)} = ${(invTotal / raw.sales_division).toFixed(4)}`
+        : null,
+    };
+  }
+  if (['3.4', '3.5'].includes(no)) {
+    return {
+      title: 'Internal Defect (PPM)',
+      rows: [
+        ['Defect Parts', fmt(raw.ppm_defect) + ' pcs'],
+        ['Total Production', fmt(raw.ppm_production) + ' pcs'],
+      ],
+      formula: (raw.ppm_production || 0) > 0 && raw.ppm_defect != null
+        ? `PPM = ${raw.ppm_defect} / ${raw.ppm_production} × 1,000,000 = ${(raw.ppm_defect / raw.ppm_production * 1e6).toFixed(1)} PPM`
+        : null,
+    };
+  }
+  if (no === '3.8') {
+    return {
+      title: 'Mean Time Between Failures (MTBF)',
+      rows: [
+        ['Total Uptime', fmt(raw.mtbf_uptime) + ' min'],
+        ['Breakdown Count', fmt(raw.breakdown_count) + ' times'],
+      ],
+      formula: (raw.breakdown_count || 0) > 0 && raw.mtbf_uptime != null
+        ? `MTBF = ${raw.mtbf_uptime} / ${raw.breakdown_count} = ${(raw.mtbf_uptime / raw.breakdown_count).toFixed(1)} min`
+        : null,
+    };
+  }
+  if (no === '3.9') {
+    return {
+      title: 'Mean Time To Repair (MTTR)',
+      rows: [
+        ['Total Repair Time', fmt(raw.mttr_repair_time) + ' min'],
+        ['Breakdown Count', fmt(raw.breakdown_count) + ' times'],
+      ],
+      formula: (raw.breakdown_count || 0) > 0 && raw.mttr_repair_time != null
+        ? `MTTR = ${raw.mttr_repair_time} / ${raw.breakdown_count} = ${(raw.mttr_repair_time / raw.breakdown_count).toFixed(1)} min`
+        : null,
+    };
+  }
+  if (no === '4.0') {
+    return {
+      title: 'Preventive Maintenance',
+      rows: [
+        ['PM Completed', fmt(raw.pm_completed) + ' tasks'],
+        ['PM Planned', fmt(raw.pm_planned) + ' tasks'],
+      ],
+      formula: (raw.pm_planned || 0) > 0 && raw.pm_completed != null
+        ? `PM% = ${raw.pm_completed} / ${raw.pm_planned} × 100 = ${(raw.pm_completed / raw.pm_planned * 100).toFixed(1)}%`
         : null,
     };
   }

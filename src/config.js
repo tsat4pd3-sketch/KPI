@@ -78,6 +78,10 @@ export const RAW_FIELD_GROUPS = {
       { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
       { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
     ]},
+    { group: 'Internal Defect (PPM)', fields: [
+      { key: 'ppm_defect',     label: 'Defect Parts (pcs)', integer: true },
+      { key: 'ppm_production', label: 'Total Production (pcs)', integer: true },
+    ]},
     { group: 'Growth',         fields: growthFields('PD3') },
   ],
   PD4: [
@@ -89,6 +93,10 @@ export const RAW_FIELD_GROUPS = {
       { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
       { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
     ]},
+    { group: 'Internal Defect (PPM)', fields: [
+      { key: 'ppm_defect',     label: 'Defect Parts (pcs)', integer: true },
+      { key: 'ppm_production', label: 'Total Production (pcs)', integer: true },
+    ]},
     { group: 'Growth',         fields: growthFields('PD4') },
   ],
   JIG: [
@@ -97,6 +105,15 @@ export const RAW_FIELD_GROUPS = {
     { group: 'Overhead',      fields: ohFields },
     { group: '100P',          fields: [
       { key: 'p100_amount', label: '100P&CR (Division level) (Baht)' },
+    ]},
+    { group: 'MTBF & MTTR', fields: [
+      { key: 'mtbf_uptime',      label: 'Total Uptime (min)' },
+      { key: 'mttr_repair_time', label: 'Total Repair Time (min)' },
+      { key: 'breakdown_count',  label: 'Breakdown Count (times)', integer: true },
+    ]},
+    { group: 'Preventive Maintenance', fields: [
+      { key: 'pm_completed', label: 'PM Completed (tasks)', integer: true },
+      { key: 'pm_planned',   label: 'PM Planned (tasks)', integer: true },
     ]},
     { group: 'Growth', fields: growthFields('JIG') },
   ],
