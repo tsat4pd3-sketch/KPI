@@ -12,18 +12,14 @@ export async function getKPIItems() {
 
 export async function getTargets(year) {
   const { data, error } = await supabase
-    .from('kpi_targets')
-    .select('*')
-    .eq('year', year);
+    .from('kpi_targets').select('*').eq('year', year);
   if (error) throw error;
   return data ?? [];
 }
 
 export async function getActuals(year) {
   const { data, error } = await supabase
-    .from('kpi_actuals')
-    .select('*')
-    .eq('year', year);
+    .from('kpi_actuals').select('*').eq('year', year);
   if (error) throw error;
   return data ?? [];
 }
@@ -52,8 +48,7 @@ export function buildMaps(items, targets, actuals, oeeByYear) {
   const targetMap = {};
   targets.forEach(t => {
     if (!targetMap[t.kpi_item_id]) targetMap[t.kpi_item_id] = {};
-    const key = t.month ?? 'annual';
-    targetMap[t.kpi_item_id][key] = t.target_value;
+    targetMap[t.kpi_item_id][t.month ?? 'annual'] = t.target_value;
   });
 
   const actualMap = {};
@@ -63,17 +58,22 @@ export function buildMaps(items, targets, actuals, oeeByYear) {
   });
 
   if (oeeByYear) {
-    const oeeItem    = items.find(i => i.name_en === 'OEE');
-    const defectItem = items.find(i => i.name_en === 'Defect PPM');
-    oeeByYear.forEach(({ month, oee, defect }) => {
-      if (oeeItem && oee != null) {
-        if (!actualMap[oeeItem.id]) actualMap[oeeItem.id] = {};
-        actualMap[oeeItem.id][month] = oee;
-      }
-      if (defectItem && defect != null) {
-        if (!actualMap[defectItem.id]) actualMap[defectItem.id] = {};
-        actualMap[defectItem.id][month] = defect;
-      }
+    const find = no => items.find(i => i.kpi_no === no);
+    const oeePD3    = find('3.6');
+    const oeePD4    = find('3.7');
+    const defectPD3 = find('3.4');
+    const defectPD4 = find('3.5');
+
+    oeeByYear.forEach(({ month, oee_pd3, defect_pd3, oee_pd4, defect_pd4 }) => {
+      const set = (item, val) => {
+        if (!item || val == null) return;
+        if (!actualMap[item.id]) actualMap[item.id] = {};
+        actualMap[item.id][month] = val;
+      };
+      set(oeePD3, oee_pd3);
+      set(oeePD4, oee_pd4);
+      set(defectPD3, defect_pd3);
+      set(defectPD4, defect_pd4);
     });
   }
 
@@ -90,7 +90,7 @@ export function getItemYTD(item, targetMap, actualMap) {
     const vals = months.map(m => tm[m]).filter(v => v != null);
     return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
   })();
-  return { actual: +avgActual.toFixed(2), target };
+  return { actual: +avgActual.toFixed(4), target };
 }
 
 export function getItemMonthly(item, targetMap, actualMap) {
@@ -98,10 +98,6 @@ export function getItemMonthly(item, targetMap, actualMap) {
   const am = actualMap[item.id] ?? {};
   return Array.from({ length: 12 }, (_, i) => {
     const m = i + 1;
-    return {
-      month: m,
-      actual: am[m] ?? null,
-      target: tm[m] ?? tm.annual ?? null,
-    };
+    return { month: m, actual: am[m] ?? null, target: tm[m] ?? tm.annual ?? null };
   });
 }
