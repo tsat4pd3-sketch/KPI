@@ -30,6 +30,7 @@ export const MONTHS_TH = [
 
 export function calcAchievement(item, actual, target) {
   if (actual == null || target == null) return null;
+  // Safety: target 0 = zero accidents goal
   if (item.unit === 'Case' && target === 0) return actual === 0 ? 100 : 0;
   if (target === 0) return actual === 0 ? 100 : 0;
   const lb = item.lower_better;
@@ -39,11 +40,13 @@ export function calcAchievement(item, actual, target) {
 
 export function achievementColor(pct) {
   if (pct == null) return 'var(--muted)';
-  if (pct >= 90) return '#22c55e';
-  if (pct >= 70) return '#f59e0b';
-  return '#e74c3c';
+  if (pct >= 90) return 'var(--green)';
+  if (pct >= 70) return 'var(--amber)';
+  return 'var(--red)';
 }
 
+// sales_total   = ยอดขายสินค้า (ผลิต) รวมทั้งโรงงาน — กรอกในฟอร์ม "รวมโรงงาน" (ALL) ครั้งเดียว
+// sales_division = ยอดขาย Division (เฉพาะส่วนงาน) — ใช้เป็นตัวหารของ 100P%, Inventory, Sales/Head
 const dlFields = [
   { key: 'dl_salary',  label: 'DL Salary (Baht)' },
   { key: 'dl_ot',      label: 'DL Overtime (Baht)' },
@@ -55,6 +58,7 @@ const ohFields = [
   { key: 'oh_repair',     label: 'OH Repair (Baht)' },
   { key: 'oh_other',      label: 'OH Other (Baht)' },
 ];
+// 100P = มูลค่าสินค้าที่ต้องแก้ไข/คืน (Baht) — ระบบคำนวณ % vs ยอดขาย Division อัตโนมัติ
 const p100Field = { key: 'p100_amount', label: '100P & Customer Returns — มูลค่ารวม (Baht)' };
 
 const planSectionFields = (secLabel) => [

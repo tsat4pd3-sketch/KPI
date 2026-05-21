@@ -25,14 +25,14 @@ const KPI_GROUPS = [
   { label: 'TS Academy',              cat: 'growth',    nos: ['4.3a', '4.3b', '4.3c'] },
 ];
 
-function StatCard({ icon, label, value, sub, color }) {
+function StatCard({ icon, label, value, sub, color, bgColor }) {
   return (
     <div className="card" style={{
       padding: '18px 20px', borderLeft: `4px solid ${color}`,
       display: 'flex', alignItems: 'center', gap: 16,
     }}>
       <div style={{
-        width: 48, height: 48, borderRadius: 12, background: `${color}20`,
+        width: 48, height: 48, borderRadius: 12, background: bgColor ?? `${color}20`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 22, flexShrink: 0,
       }}>{icon}</div>
@@ -123,11 +123,13 @@ export default function Dashboard() {
 
       {/* ── Stat Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
-        <StatCard icon="📊" label="Overall Achievement" color={avgPct != null ? achievementColor(avgPct) : 'var(--muted)'}
+        <StatCard icon="📊" label="Overall Achievement"
+          color={avgPct != null ? achievementColor(avgPct) : 'var(--muted)'}
+          bgColor={avgPct != null ? (avgPct >= 90 ? 'var(--green-dim)' : avgPct >= 70 ? 'var(--amber-dim)' : 'var(--red-dim)') : 'var(--accent-dim)'}
           value={avgPct != null ? `${avgPct}%` : '—'} sub={`${tracked.length} ตัวชี้วัดที่มีข้อมูล`} />
-        <StatCard icon="✅" label="On Track"    color="#22c55e" value={onTrack} sub="Achievement ≥ 90%" />
-        <StatCard icon="⚠️" label="At Risk"     color="#f59e0b" value={atRisk}  sub="Achievement 70–89%" />
-        <StatCard icon="🔴" label="Below Target" color="#e74c3c" value={below}  sub="Achievement < 70%" />
+        <StatCard icon="✅" label="On Track"    color="var(--green)" bgColor="var(--green-dim)" value={onTrack} sub="Achievement ≥ 90%" />
+        <StatCard icon="⚠️" label="At Risk"     color="var(--amber)" bgColor="var(--amber-dim)" value={atRisk}  sub="Achievement 70–89%" />
+        <StatCard icon="🔴" label="Below Target" color="var(--red)"   bgColor="var(--red-dim)"   value={below}  sub="Achievement < 70%" />
       </div>
 
       {/* ── Category Cards ── */}
@@ -293,7 +295,7 @@ export default function Dashboard() {
                 .map(({ item, actual, target, pct }) => {
                   const clr = achievementColor(pct);
                   const status   = pct == null ? null : pct >= 90 ? 'On Track' : pct >= 70 ? 'At Risk' : 'Below';
-                  const statusBg = pct == null ? null : pct >= 90 ? '#22c55e18' : pct >= 70 ? '#f59e0b18' : '#e74c3c18';
+                  const statusBg = pct == null ? null : pct >= 90 ? 'var(--green-dim)' : pct >= 70 ? 'var(--amber-dim)' : 'var(--red-dim)';
                   return (
                     <tr key={item.id} style={{ cursor: 'pointer' }}
                       onClick={() => navigate(`/category/${item.category}`)}

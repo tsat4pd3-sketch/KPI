@@ -174,15 +174,15 @@ export default function DataEntry() {
               return (
                 <button key={s} onClick={() => setSection(s)} style={{
                   padding: '7px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                  border: `1px solid ${section === s ? (isAll ? '#6366f1' : SECTION_COLORS[s]) : 'var(--border2)'}`,
-                  background: section === s ? `${isAll ? '#6366f1' : SECTION_COLORS[s]}20` : 'var(--bg3)',
-                  color: section === s ? (isAll ? '#6366f1' : SECTION_COLORS[s]) : 'var(--text2)',
+                  border: `1px solid ${section === s ? (isAll ? 'var(--accent)' : SECTION_COLORS[s]) : 'var(--border2)'}`,
+                  background: section === s ? (isAll ? 'var(--accent-dim)' : `${SECTION_COLORS[s]}20`) : 'var(--bg3)',
+                  color: section === s ? (isAll ? 'var(--accent)' : SECTION_COLORS[s]) : 'var(--text2)',
                 }}>{label}</button>
               );
             })}
           </div>
           {section === 'ALL' && (
-            <div style={{ fontSize: 11, color: '#6366f1', marginTop: 5, opacity: 0.85 }}>
+            <div style={{ fontSize: 11, color: 'var(--accent)', marginTop: 5, opacity: 0.85 }}>
               💡 กรอกส่วนนี้ก่อน — ระบบจะใช้ยอดขายรวมโรงงานคำนวณ DL%/OH% ให้ทุกแผนกอัตโนมัติ
             </div>
           )}
@@ -192,7 +192,7 @@ export default function DataEntry() {
           style={{
             padding: '9px 24px', borderRadius: 8, fontWeight: 700, fontSize: 14,
             minWidth: 120, border: 'none', color: '#fff',
-            background: saved ? '#22c55e' : 'var(--accent)',
+            background: saved ? 'var(--green)' : 'var(--accent)',
           }}
         >
           {saving ? 'กำลังบันทึก...' : saved ? '✓ บันทึกแล้ว' : '💾 บันทึก'}
@@ -211,8 +211,8 @@ export default function DataEntry() {
                 {section === 'ALL' ? '🏭 ข้อมูลรวมโรงงาน' : '📊 ข้อมูลดิบ'}
               </span>
               <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4,
-                background: section === 'ALL' ? '#6366f120' : `${SECTION_COLORS[section]}20`,
-                color: section === 'ALL' ? '#6366f1' : SECTION_COLORS[section],
+                background: section === 'ALL' ? 'var(--accent-dim)' : `${SECTION_COLORS[section]}20`,
+                color: section === 'ALL' ? 'var(--accent)' : SECTION_COLORS[section],
               }}>
                 {section === 'ALL' ? 'รวมโรงงาน' : section}
               </span>
