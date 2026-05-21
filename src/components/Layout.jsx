@@ -5,6 +5,7 @@ import { useApp } from '../App';
 
 const NAV = [
   { to: '/',        icon: '📊', label: 'Dashboard' },
+  { to: '/trends',  icon: '📈', label: 'แนวโน้ม KPI' },
   { to: '/entry',   icon: '📝', label: 'กรอกข้อมูล' },
   { to: '/targets', icon: '🎯', label: 'ตั้งค่าเป้าหมาย' },
 ];
