@@ -45,12 +45,8 @@ export function achievementColor(pct) {
   return '#e74c3c';
 }
 
-// sales_total = ยอดขายสินค้า (ผลิต) รวมทั้งโรงงาน — ใช้เป็นตัวหารของ DL% และ OH%
+// sales_total   = ยอดขายสินค้า (ผลิต) รวมทั้งโรงงาน — กรอกในฟอร์ม "รวมโรงงาน" (ALL) ครั้งเดียว
 // sales_division = ยอดขาย Division (เฉพาะส่วนงาน) — ใช้เป็นตัวหารของ 100P%, Inventory, Sales/Head
-const salesFields = (secLabel) => [
-  { key: 'sales_total',    label: 'ยอดขายสินค้า (ผลิต) รวมโรงงาน — ACT PRODUCT SALES (Baht)' },
-  { key: 'sales_division', label: `ยอดขาย ${secLabel} Division — ACT SALE DIV (Baht)` },
-];
 const dlFields = [
   { key: 'dl_salary',  label: 'DL Salary (Baht)' },
   { key: 'dl_ot',      label: 'DL Overtime (Baht)' },
@@ -67,14 +63,18 @@ const growthFields = (secLabel) => [
   { key: 'course_trained_count', label: 'Courses Completed (เดือนนี้)', integer: true },
   { key: 'course_plan_annual',   label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
 ];
+// 100P = มูลค่าสินค้าที่ต้องแก้ไข/คืน (Baht) — ระบบคำนวณ % vs ยอดขาย Division อัตโนมัติ
+const p100Field = { key: 'p100_amount', label: '100P & Customer Returns — มูลค่ารวม (Baht)' };
 
 export const RAW_FIELD_GROUPS = {
   PD3: [
-    { group: 'ยอดขาย',         fields: salesFields('PD3') },
+    { group: 'ยอดขาย Division', fields: [
+      { key: 'sales_division', label: 'ยอดขาย PD3 Division — ACT SALE DIV (Baht)' },
+    ]},
     { group: 'Direct Labour',  fields: dlFields },
     { group: 'Overhead',       fields: ohFields },
     { group: '100P & Inventory', fields: [
-      { key: 'p100_amount',    label: '100P&CR (Division level) (Baht)' },
+      p100Field,
       { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
       { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
     ]},
@@ -82,14 +82,16 @@ export const RAW_FIELD_GROUPS = {
       { key: 'ppm_defect',     label: 'Defect Parts (pcs)', integer: true },
       { key: 'ppm_production', label: 'Total Production (pcs)', integer: true },
     ]},
-    { group: 'Growth',         fields: growthFields('PD3') },
+    { group: 'Growth', fields: growthFields('PD3') },
   ],
   PD4: [
-    { group: 'ยอดขาย',         fields: salesFields('PD4') },
+    { group: 'ยอดขาย Division', fields: [
+      { key: 'sales_division', label: 'ยอดขาย PD4 Division — ACT SALE DIV (Baht)' },
+    ]},
     { group: 'Direct Labour',  fields: dlFields },
     { group: 'Overhead',       fields: ohFields },
     { group: '100P & Inventory', fields: [
-      { key: 'p100_amount',    label: '100P&CR (Division level) (Baht)' },
+      p100Field,
       { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
       { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
     ]},
@@ -97,15 +99,15 @@ export const RAW_FIELD_GROUPS = {
       { key: 'ppm_defect',     label: 'Defect Parts (pcs)', integer: true },
       { key: 'ppm_production', label: 'Total Production (pcs)', integer: true },
     ]},
-    { group: 'Growth',         fields: growthFields('PD4') },
+    { group: 'Growth', fields: growthFields('PD4') },
   ],
   JIG: [
-    { group: 'ยอดขาย',   fields: salesFields('JIG') },
+    { group: 'ยอดขาย Division', fields: [
+      { key: 'sales_division', label: 'ยอดขาย JIG Division — ACT SALE DIV (Baht)' },
+    ]},
     { group: 'Direct Labour', fields: dlFields },
     { group: 'Overhead',      fields: ohFields },
-    { group: '100P',          fields: [
-      { key: 'p100_amount', label: '100P&CR (Division level) (Baht)' },
-    ]},
+    { group: '100P', fields: [p100Field] },
     { group: 'MTBF & MTTR', fields: [
       { key: 'mtbf_uptime',      label: 'Total Uptime (min)' },
       { key: 'mttr_repair_time', label: 'Total Repair Time (min)' },
@@ -118,6 +120,10 @@ export const RAW_FIELD_GROUPS = {
     { group: 'Growth', fields: growthFields('JIG') },
   ],
   ALL: [
+    { group: 'ข้อมูลรวมโรงงาน (ใช้คำนวณ DL% / OH% ของทุกแผนก)', fields: [
+      { key: 'sales_total',    label: 'ยอดขายสินค้า (ผลิต) รวมโรงงาน — ACT PRODUCT SALES (Baht)' },
+      { key: 'manpower_total', label: 'Headcount รวมทั้งโรงงาน (Permanent + Outsource)', integer: true },
+    ]},
     { group: 'Customer Satisfaction', fields: [
       { key: 'cust_sat_q', label: 'Quality Score (%)' },
       { key: 'cust_sat_d', label: 'Delivery Score (%)' },

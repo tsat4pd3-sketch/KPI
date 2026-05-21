@@ -70,7 +70,7 @@ function RawInputForm({ section, rawVals, onChange }) {
 export default function DataEntry() {
   const { year } = useApp();
   const [month, setMonth]     = useState(new Date().getMonth() + 1);
-  const [section, setSection] = useState('PD3');
+  const [section, setSection] = useState('ALL');
   const [items, setItems]     = useState([]);
   const [allRaws, setAllRaws] = useState([]);
   const [rawVals, setRawVals] = useState({});
@@ -167,16 +167,25 @@ export default function DataEntry() {
         </div>
         <div>
           <div style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 4 }}>ส่วนงาน</div>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {SECTIONS.map(s => (
-              <button key={s} onClick={() => setSection(s)} style={{
-                padding: '7px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                border: `1px solid ${section === s ? SECTION_COLORS[s] : 'var(--border2)'}`,
-                background: section === s ? `${SECTION_COLORS[s]}20` : 'var(--bg3)',
-                color: section === s ? SECTION_COLORS[s] : 'var(--text2)',
-              }}>{s}</button>
-            ))}
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {SECTIONS.map(s => {
+              const label = s === 'ALL' ? '🏭 รวมโรงงาน' : s;
+              const isAll = s === 'ALL';
+              return (
+                <button key={s} onClick={() => setSection(s)} style={{
+                  padding: '7px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                  border: `1px solid ${section === s ? (isAll ? '#6366f1' : SECTION_COLORS[s]) : 'var(--border2)'}`,
+                  background: section === s ? `${isAll ? '#6366f1' : SECTION_COLORS[s]}20` : 'var(--bg3)',
+                  color: section === s ? (isAll ? '#6366f1' : SECTION_COLORS[s]) : 'var(--text2)',
+                }}>{label}</button>
+              );
+            })}
           </div>
+          {section === 'ALL' && (
+            <div style={{ fontSize: 11, color: '#6366f1', marginTop: 5, opacity: 0.85 }}>
+              💡 กรอกส่วนนี้ก่อน — ระบบจะใช้ยอดขายรวมโรงงานคำนวณ DL%/OH% ให้ทุกแผนกอัตโนมัติ
+            </div>
+          )}
         </div>
         <button
           onClick={handleSave} disabled={saving}
@@ -198,9 +207,14 @@ export default function DataEntry() {
           {/* Raw input card */}
           <div className="card" style={{ overflow: 'hidden' }}>
             <div style={{ padding: '10px 16px', background: 'var(--bg2)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text2)' }}>📊 ข้อมูลดิบ</span>
-              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${SECTION_COLORS[section]}20`, color: SECTION_COLORS[section] }}>
-                {section}
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text2)' }}>
+                {section === 'ALL' ? '🏭 ข้อมูลรวมโรงงาน' : '📊 ข้อมูลดิบ'}
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4,
+                background: section === 'ALL' ? '#6366f120' : `${SECTION_COLORS[section]}20`,
+                color: section === 'ALL' ? '#6366f1' : SECTION_COLORS[section],
+              }}>
+                {section === 'ALL' ? 'รวมโรงงาน' : section}
               </span>
               <span style={{ fontSize: 11, color: 'var(--muted)' }}>— คำนวณ KPI อัตโนมัติหลังบันทึก</span>
             </div>
