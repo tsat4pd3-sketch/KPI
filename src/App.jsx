@@ -20,7 +20,7 @@ function ProtectedLayout({ session }) {
 export default function App() {
   const [session, setSession] = useState(undefined);
   const [year, setYear] = useState(new Date().getFullYear());
-  const [theme, setTheme] = useState(() => localStorage.getItem('kpi-theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('kpi-theme') || 'light');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
