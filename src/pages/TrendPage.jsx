@@ -6,7 +6,6 @@ import { getOEEByYear } from '../services/oeeService';
 
 const CATS = ['financial', 'customer', 'internal', 'growth'];
 
-// Thai Summit Group VX brand palette (from presentation template)
 const TSG = {
   green:      '#0d3d14',
   greenMid:   '#1a6626',
@@ -19,7 +18,6 @@ const TSG = {
   bg:         '#f5f8f5',
 };
 
-// Mini bar chart — TSG column chart style (light→dark orange, green target dashes)
 function MiniBarChart({ aMap, tMap, item }) {
   const VW = 300, VH = 116;
   const months = [1,2,3,4,5,6,7,8,9,10,11,12];
@@ -50,7 +48,6 @@ function MiniBarChart({ aMap, tMap, item }) {
 
   const latestIdx = aVals.reduceRight((a, v, i) => a === -1 && v != null ? i : a, -1);
 
-  // Target path
   const tPts = tVals
     .map((v, i) => v != null ? { x: pL + (i + 0.5) * slotW, y: lY(v) } : null)
     .filter(Boolean);
@@ -60,10 +57,7 @@ function MiniBarChart({ aMap, tMap, item }) {
 
   return (
     <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
-      {/* Baseline */}
       <line x1={pL} y1={pT + cH} x2={pL + cW} y2={pT + cH} stroke="#ddd" strokeWidth={1} />
-
-      {/* Bars */}
       {aVals.map((v, i) => {
         if (v == null) return null;
         const isLatest = i === latestIdx;
@@ -77,8 +71,6 @@ function MiniBarChart({ aMap, tMap, item }) {
           />
         );
       })}
-
-      {/* Target dashed line */}
       {tPath && (
         <path d={tPath} fill="none" stroke={TSG.green} strokeWidth={1.8}
           strokeDasharray="5 3.5" strokeLinecap="round" opacity={0.75} />
@@ -87,8 +79,6 @@ function MiniBarChart({ aMap, tMap, item }) {
         <circle cx={tPts[tPts.length - 1].x.toFixed(1)} cy={tPts[tPts.length - 1].y.toFixed(1)}
           r={3} fill={TSG.green} opacity={0.85} />
       )}
-
-      {/* Month axis labels */}
       {MONTHS_TH.map((m, i) => {
         const isL = i === latestIdx;
         return (
@@ -137,8 +127,6 @@ export default function TrendPage() {
 
   return (
     <div className="page-content" style={{ background: TSG.bg, fontFamily: 'Tahoma, system-ui, sans-serif' }}>
-
-      {/* ─── Page header — TSG style ─── */}
       <div style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 5 }}>
           <div style={{ width: 5, height: 34, background: TSG.green, borderRadius: 3, flexShrink: 0 }} />
@@ -151,8 +139,6 @@ export default function TrendPage() {
             </div>
           </div>
         </div>
-
-        {/* Legend row */}
         <div style={{ display: 'flex', gap: 20, marginLeft: 17, marginTop: 10, flexWrap: 'wrap' }}>
           {[
             { swatch: <rect width={14} height={10} rx={2} fill={TSG.orangeDark} />, label: 'Actual (เดือนล่าสุด)' },
@@ -167,7 +153,6 @@ export default function TrendPage() {
         </div>
       </div>
 
-      {/* ─── Section filter — TSG button style ─── */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 24, flexWrap: 'wrap' }}>
         {[{ key: 'ALL', label: 'ทั้งหมด' }, ...SECTIONS.filter(s => s !== 'ALL').map(s => ({ key: s, label: s }))].map(({ key: s, label }) => {
           const isSel = section === s;
@@ -178,104 +163,53 @@ export default function TrendPage() {
               background: isSel ? TSG.green : '#fff',
               color: isSel ? '#fff' : TSG.green,
               cursor: 'pointer', letterSpacing: '0.03em',
+              transition: 'all 0.15s',
             }}>{label}</button>
           );
         })}
       </div>
 
-      {/* ─── Category sections ─── */}
       {CATS.map(cat => {
         const meta = CATEGORY_META[cat];
         const catItems = visibleItems.filter(x => x.category === cat);
         if (catItems.length === 0) return null;
-
         return (
           <div key={cat} style={{ marginBottom: 28 }}>
-            {/* TSG-style category header band */}
-            <div style={{
-              background: TSG.green,
-              padding: '10px 20px',
-              borderRadius: '6px 6px 0 0',
-              display: 'flex', alignItems: 'center', gap: 10,
-            }}>
+            <div style={{ background: TSG.green, padding: '10px 20px', borderRadius: '6px 6px 0 0', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 16, lineHeight: 1 }}>{meta.icon}</span>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                {meta.label}
-              </span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{meta.label}</span>
               <span style={{ fontSize: 12, color: TSG.greenLight, letterSpacing: '0.02em' }}>— {meta.labelTH}</span>
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: TSG.greenLight, opacity: 0.8 }}>
-                {catItems.length} items
-              </span>
+              <span style={{ marginLeft: 'auto', fontSize: 11, color: TSG.greenLight, opacity: 0.8 }}>{catItems.length} items</span>
             </div>
-
-            {/* KPI card grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))',
-              gap: 1,
-              background: TSG.border,
-              border: `1px solid ${TSG.border}`,
-              borderTop: 'none',
-              borderRadius: '0 0 6px 6px',
-              overflow: 'hidden',
-            }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: 1, background: TSG.border, border: `1px solid ${TSG.border}`, borderTop: 'none', borderRadius: '0 0 6px 6px', overflow: 'hidden' }}>
               {catItems.map(item => {
                 const aMap = maps?.actualMap?.[item.id] ?? {};
                 const tMap = maps?.targetMap?.[item.id] ?? {};
-
                 const latestMonth = [12,11,10,9,8,7,6,5,4,3,2,1].find(m => aMap[m] != null);
                 const actual = latestMonth != null ? aMap[latestMonth] : null;
                 const target = latestMonth != null ? (tMap[latestMonth] ?? tMap['annual'] ?? null) : null;
                 const pct    = calcAchievement(item, actual, target);
-
                 const prevVal  = latestMonth && latestMonth > 1 ? aMap[latestMonth - 1] : null;
                 const trendUp  = prevVal != null && actual != null ? (item.lower_better ? actual < prevVal : actual > prevVal) : null;
-
                 const statusColor = pct == null ? '#aaa' : pct >= 90 ? '#15803d' : pct >= 70 ? '#b45309' : '#b91c1c';
                 const statusBg    = pct == null ? '#f3f4f6' : pct >= 90 ? '#dcfce7' : pct >= 70 ? '#fef9c3' : '#fee2e2';
                 const statusLabel = pct == null ? 'N/A' : pct >= 90 ? 'ON TRACK' : pct >= 70 ? 'MONITOR' : 'AT RISK';
-
                 const secClr = SECTION_COLORS[item.section] ?? '#888';
-
                 return (
                   <div key={item.id} style={{ background: '#fff', padding: '16px 18px 14px', display: 'flex', flexDirection: 'column' }}>
-
-                    {/* Top meta row */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <span style={{ fontSize: 10, color: '#aaa', fontWeight: 600, letterSpacing: '0.05em' }}>{item.kpi_no}</span>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <span style={{ fontSize: 9, fontWeight: 700, color: secClr, background: `${secClr}18`, padding: '1px 6px', borderRadius: 3 }}>
-                          {item.section}
-                        </span>
-                        {pct != null && (
-                          <span style={{ fontSize: 9, fontWeight: 700, color: statusColor, background: statusBg, padding: '1px 6px', borderRadius: 3, letterSpacing: '0.03em' }}>
-                            {statusLabel}
-                          </span>
-                        )}
+                        <span style={{ fontSize: 9, fontWeight: 700, color: secClr, background: `${secClr}18`, padding: '1px 6px', borderRadius: 3 }}>{item.section}</span>
+                        {pct != null && <span style={{ fontSize: 9, fontWeight: 700, color: statusColor, background: statusBg, padding: '1px 6px', borderRadius: 3, letterSpacing: '0.03em' }}>{statusLabel}</span>}
                       </div>
                     </div>
-
-                    {/* KPI name */}
-                    <div style={{ fontSize: 12, fontWeight: 700, color: TSG.green, lineHeight: 1.4, marginBottom: 12, minHeight: 34 }}>
-                      {item.name_en}
-                    </div>
-
-                    {/* Large value */}
+                    <div style={{ fontSize: 12, fontWeight: 700, color: TSG.green, lineHeight: 1.4, marginBottom: 12, minHeight: 34 }}>{item.name_en}</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 32, fontWeight: 800, color: TSG.orangeDark, lineHeight: 1 }}>
-                        {actual != null ? formatValue(item, actual) : '—'}
-                      </span>
-                      {trendUp != null && (
-                        <span style={{ fontSize: 14, fontWeight: 800, color: trendUp ? '#15803d' : '#b91c1c' }}>
-                          {trendUp ? '▲' : '▼'}
-                        </span>
-                      )}
-                      <span style={{ fontSize: 10, color: '#aaa', marginLeft: 'auto', fontStyle: 'italic' }}>
-                        {latestMonth ? `${MONTHS_TH[latestMonth - 1]} ${year}` : ''}
-                      </span>
+                      <span style={{ fontSize: 32, fontWeight: 800, color: TSG.orangeDark, lineHeight: 1 }}>{actual != null ? formatValue(item, actual) : '—'}</span>
+                      {trendUp != null && <span style={{ fontSize: 14, fontWeight: 800, color: trendUp ? '#15803d' : '#b91c1c' }}>{trendUp ? '▲' : '▼'}</span>}
+                      <span style={{ fontSize: 10, color: '#aaa', marginLeft: 'auto', fontStyle: 'italic' }}>{latestMonth ? `${MONTHS_TH[latestMonth - 1]} ${year}` : ''}</span>
                     </div>
-
-                    {/* Achievement progress bar */}
                     {pct != null ? (
                       <div style={{ marginBottom: 12 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#888', marginBottom: 4 }}>
@@ -283,14 +217,10 @@ export default function TrendPage() {
                           <span style={{ fontWeight: 800, color: statusColor }}>{Math.round(pct)}%</span>
                         </div>
                         <div style={{ height: 5, background: '#e5e7eb', borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: statusColor, borderRadius: 3 }} />
+                          <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: statusColor, borderRadius: 3, transition: 'width 0.6s ease' }} />
                         </div>
                       </div>
-                    ) : (
-                      <div style={{ marginBottom: 12, fontSize: 10, color: '#bbb', fontStyle: 'italic' }}>ไม่มี Target</div>
-                    )}
-
-                    {/* Bar chart */}
+                    ) : <div style={{ marginBottom: 12, fontSize: 10, color: '#bbb', fontStyle: 'italic' }}>ไม่มี Target</div>}
                     <MiniBarChart aMap={aMap} tMap={tMap} item={item} />
                   </div>
                 );
@@ -300,7 +230,6 @@ export default function TrendPage() {
         );
       })}
 
-      {/* ─── TSG footer branding ─── */}
       <div style={{ marginTop: 8, paddingTop: 14, borderTop: `1.5px solid ${TSG.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 18, height: 18, background: TSG.orange, borderRadius: 3 }} />
