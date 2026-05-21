@@ -105,7 +105,7 @@ export default function TargetSetting() {
           onClick={handleSave} disabled={saving}
           style={{
             padding: '9px 24px', borderRadius: 8,
-            background: saved ? '#22c55e' : 'var(--accent)',
+            background: saved ? 'var(--green)' : 'var(--accent)',
             color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, minWidth: 120,
           }}
         >

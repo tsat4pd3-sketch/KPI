@@ -40,9 +40,9 @@ export function calcAchievement(item, actual, target) {
 
 export function achievementColor(pct) {
   if (pct == null) return 'var(--muted)';
-  if (pct >= 90) return '#22c55e';
-  if (pct >= 70) return '#f59e0b';
-  return '#e74c3c';
+  if (pct >= 90) return 'var(--green)';
+  if (pct >= 70) return 'var(--amber)';
+  return 'var(--red)';
 }
 
 // sales_total   = ยอดขายสินค้า (ผลิต) รวมทั้งโรงงาน — กรอกในฟอร์ม "รวมโรงงาน" (ALL) ครั้งเดียว
