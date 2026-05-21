@@ -58,22 +58,25 @@ const ohFields = [
   { key: 'oh_repair',     label: 'OH Repair (Baht)' },
   { key: 'oh_other',      label: 'OH Other (Baht)' },
 ];
-const growthFields = (secLabel) => [
-  { key: 'manpower_section',     label: `Headcount ${secLabel} (Permanent + Outsource)`, integer: true },
-  { key: 'course_trained_count', label: 'Courses Completed (เดือนนี้)', integer: true },
-  { key: 'course_plan_annual',   label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
-];
 // 100P = มูลค่าสินค้าที่ต้องแก้ไข/คืน (Baht) — ระบบคำนวณ % vs ยอดขาย Division อัตโนมัติ
 const p100Field = { key: 'p100_amount', label: '100P & Customer Returns — มูลค่ารวม (Baht)' };
 
+const planSectionFields = (secLabel) => [
+  { key: 'plan_sales_division', label: `PLAN Product SALE ${secLabel} (Baht)` },
+  { key: 'plan_dl',             label: 'PLAN DL (Baht)' },
+  { key: 'plan_oh',             label: 'PLAN OH (Baht)' },
+  { key: 'plan_100p',           label: 'Plan 100P — Cost Reduction Target (Baht)' },
+];
+
 export const RAW_FIELD_GROUPS = {
   PD3: [
-    { group: 'ยอดขาย Division', fields: [
-      { key: 'sales_division', label: 'ยอดขาย PD3 Division — ACT SALE DIV (Baht)' },
+    { group: 'Plan (งบประมาณเดือนนี้)', fields: planSectionFields('PD3') },
+    { group: 'ยอดขาย Division (Actual)', fields: [
+      { key: 'sales_division', label: 'ACTUAL Product SALE PD3 Division (Baht)' },
     ]},
-    { group: 'Direct Labour',  fields: dlFields },
-    { group: 'Overhead',       fields: ohFields },
-    { group: '100P & Inventory', fields: [
+    { group: 'Direct Labour (Actual)',  fields: dlFields },
+    { group: 'Overhead (Actual)',       fields: ohFields },
+    { group: '100P & Inventory (Actual)', fields: [
       p100Field,
       { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
       { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
@@ -82,15 +85,21 @@ export const RAW_FIELD_GROUPS = {
       { key: 'ppm_defect',     label: 'Defect Parts (pcs)', integer: true },
       { key: 'ppm_production', label: 'Total Production (pcs)', integer: true },
     ]},
-    { group: 'Growth', fields: growthFields('PD3') },
+    { group: 'Growth', fields: [
+      { key: 'manpower_section',     label: 'ACTUAL Man PD3 (Permanent + Outsource)', integer: true },
+      { key: 'training_headcount',   label: 'Training (man) — จำนวนคนที่ได้รับการอบรม', integer: true },
+      { key: 'course_trained_count', label: 'Courses Completed (จำนวน course)', integer: true },
+      { key: 'course_plan_annual',   label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
+    ]},
   ],
   PD4: [
-    { group: 'ยอดขาย Division', fields: [
-      { key: 'sales_division', label: 'ยอดขาย PD4 Division — ACT SALE DIV (Baht)' },
+    { group: 'Plan (งบประมาณเดือนนี้)', fields: planSectionFields('PD4') },
+    { group: 'ยอดขาย Division (Actual)', fields: [
+      { key: 'sales_division', label: 'ACTUAL Product SALE PD4 Division (Baht)' },
     ]},
-    { group: 'Direct Labour',  fields: dlFields },
-    { group: 'Overhead',       fields: ohFields },
-    { group: '100P & Inventory', fields: [
+    { group: 'Direct Labour (Actual)',  fields: dlFields },
+    { group: 'Overhead (Actual)',       fields: ohFields },
+    { group: '100P & Inventory (Actual)', fields: [
       p100Field,
       { key: 'inventory_p410', label: 'Inventory Balance — P410 Line (Baht)' },
       { key: 'inventory_p412', label: 'Inventory Balance — P412 Line (Baht)' },
@@ -99,15 +108,21 @@ export const RAW_FIELD_GROUPS = {
       { key: 'ppm_defect',     label: 'Defect Parts (pcs)', integer: true },
       { key: 'ppm_production', label: 'Total Production (pcs)', integer: true },
     ]},
-    { group: 'Growth', fields: growthFields('PD4') },
+    { group: 'Growth', fields: [
+      { key: 'manpower_section',     label: 'ACTUAL Man PD4 (Permanent + Outsource)', integer: true },
+      { key: 'training_headcount',   label: 'Training (man) — จำนวนคนที่ได้รับการอบรม', integer: true },
+      { key: 'course_trained_count', label: 'Courses Completed (จำนวน course)', integer: true },
+      { key: 'course_plan_annual',   label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
+    ]},
   ],
   JIG: [
-    { group: 'ยอดขาย Division', fields: [
-      { key: 'sales_division', label: 'ยอดขาย JIG Division — ACT SALE DIV (Baht)' },
+    { group: 'Plan (งบประมาณเดือนนี้)', fields: planSectionFields('JIG') },
+    { group: 'ยอดขาย Division (Actual)', fields: [
+      { key: 'sales_division', label: 'ACTUAL Product SALE JIG Division (Baht)' },
     ]},
-    { group: 'Direct Labour', fields: dlFields },
-    { group: 'Overhead',      fields: ohFields },
-    { group: '100P', fields: [p100Field] },
+    { group: 'Direct Labour (Actual)', fields: dlFields },
+    { group: 'Overhead (Actual)',      fields: ohFields },
+    { group: '100P (Actual)', fields: [p100Field] },
     { group: 'MTBF & MTTR', fields: [
       { key: 'mtbf_uptime',      label: 'Total Uptime (min)' },
       { key: 'mttr_repair_time', label: 'Total Repair Time (min)' },
@@ -117,12 +132,22 @@ export const RAW_FIELD_GROUPS = {
       { key: 'pm_completed', label: 'PM Completed (tasks)', integer: true },
       { key: 'pm_planned',   label: 'PM Planned (tasks)', integer: true },
     ]},
-    { group: 'Growth', fields: growthFields('JIG') },
+    { group: 'Growth', fields: [
+      { key: 'manpower_section',     label: 'ACTUAL Man JIG (Permanent + Outsource)', integer: true },
+      { key: 'training_headcount',   label: 'Training (man) — จำนวนคนที่ได้รับการอบรม', integer: true },
+      { key: 'course_trained_count', label: 'Courses Completed (จำนวน course)', integer: true },
+      { key: 'course_plan_annual',   label: 'Annual Course Plan (รวมทั้งปี)', integer: true },
+    ]},
   ],
   ALL: [
-    { group: 'ข้อมูลรวมโรงงาน (ใช้คำนวณ DL% / OH% ของทุกแผนก)', fields: [
-      { key: 'sales_total',    label: 'ยอดขายสินค้า (ผลิต) รวมโรงงาน — ACT PRODUCT SALES (Baht)' },
-      { key: 'manpower_total', label: 'Headcount รวมทั้งโรงงาน (Permanent + Outsource)', integer: true },
+    { group: 'Plan รวมโรงงาน (งบประมาณเดือนนี้)', fields: [
+      { key: 'plan_sales_total',  label: 'PLAN TOTAL SALE (Baht)' },
+      { key: 'plan_manpower_fac', label: 'PLAN Man Fac (Headcount)', integer: true },
+    ]},
+    { group: 'Actual รวมโรงงาน (ใช้คำนวณ DL% / OH% ทุกแผนก)', fields: [
+      { key: 'sales_total',         label: 'ACTUAL TOTAL SALE — ACT PRODUCT SALES (Baht)' },
+      { key: 'manpower_total',      label: 'ACTUAL Man Fac (Permanent + Outsource)', integer: true },
+      { key: 'p100_amount_factory', label: 'Actual 100P+CR Factory — มูลค่ารวมโรงงาน (Baht)' },
     ]},
     { group: 'Customer Satisfaction', fields: [
       { key: 'cust_sat_q', label: 'Quality Score (%)' },
