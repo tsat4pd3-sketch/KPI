@@ -8,28 +8,35 @@ import GaugeRing from '../components/GaugeRing';
 
 const CATS = ['financial', 'customer', 'internal', 'growth'];
 
-function StatCard({ icon, label, value, sub, color, onClick }) {
+// Groups of equivalent KPIs across sections — for the ALL rollup view
+const KPI_GROUPS = [
+  { label: 'Direct Labour %',         cat: 'financial', nos: ['1.1', '1.3', '1.5'] },
+  { label: 'Overhead %',              cat: 'financial', nos: ['1.2', '1.4', '1.6'] },
+  { label: 'Customer Satisfaction',   cat: 'customer',  nos: ['2.1'] },
+  { label: '100P & Customer Returns', cat: 'internal',  nos: ['3.1a', '3.1b', '3.1c'] },
+  { label: 'Inventory Balance',       cat: 'internal',  nos: ['3.2', '3.3'] },
+  { label: 'Internal Defect (PPM)',   cat: 'internal',  nos: ['3.4', '3.5'] },
+  { label: 'OEE',                     cat: 'internal',  nos: ['3.6', '3.7'] },
+  { label: 'MTBF',                    cat: 'internal',  nos: ['3.8'] },
+  { label: 'MTTR',                    cat: 'internal',  nos: ['3.9'] },
+  { label: 'PM',                      cat: 'internal',  nos: ['4.0'] },
+  { label: 'Safety Accidents',        cat: 'growth',    nos: ['4.1a', '4.1b', '4.1c'] },
+  { label: 'Sales per Head',          cat: 'growth',    nos: ['4.2a', '4.2b', '4.2c'] },
+  { label: 'TS Academy',              cat: 'growth',    nos: ['4.3a', '4.3b', '4.3c'] },
+];
+
+function StatCard({ icon, label, value, sub, color }) {
   return (
-    <div
-      className="card"
-      onClick={onClick}
-      style={{
-        padding: '18px 20px',
-        borderLeft: `4px solid ${color}`,
-        cursor: onClick ? 'pointer' : 'default',
-        display: 'flex', alignItems: 'center', gap: 16,
-        transition: 'transform 0.15s',
-      }}
-      onMouseEnter={e => onClick && (e.currentTarget.style.transform = 'translateY(-2px)')}
-      onMouseLeave={e => onClick && (e.currentTarget.style.transform = '')}
-    >
+    <div className="card" style={{
+      padding: '18px 20px', borderLeft: `4px solid ${color}`,
+      display: 'flex', alignItems: 'center', gap: 16,
+    }}>
       <div style={{
-        width: 48, height: 48, borderRadius: 12,
-        background: `${color}20`,
+        width: 48, height: 48, borderRadius: 12, background: `${color}20`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 22, flexShrink: 0,
       }}>{icon}</div>
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 2 }}>{label}</div>
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 30, color, lineHeight: 1 }}>{value}</div>
         <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>{sub}</div>
@@ -62,17 +69,19 @@ export default function Dashboard() {
     });
   }, [year]);
 
-  const visibleItems = section === 'ALL'
-    ? items
-    : items.filter(i => i.section === section || i.section === 'ALL');
-
-  const itemsWithPct = visibleItems.map(item => {
+  // For stat cards & category cards — always use full item list for overall summary
+  const allItemsWithPct = items.map(item => {
     if (!maps) return { item, actual: null, target: null, pct: null };
     const { actual, target } = getItemYTD(item, maps.targetMap, maps.actualMap);
     return { item, actual, target, pct: calcAchievement(item, actual, target) };
   });
 
-  const tracked  = itemsWithPct.filter(x => x.pct != null);
+  // For category cards — filter by section when not ALL
+  const visibleItemsWithPct = section === 'ALL'
+    ? allItemsWithPct
+    : allItemsWithPct.filter(x => x.item.section === section || x.item.section === 'ALL');
+
+  const tracked  = allItemsWithPct.filter(x => x.pct != null);
   const onTrack  = tracked.filter(x => x.pct >= 90).length;
   const atRisk   = tracked.filter(x => x.pct >= 70 && x.pct < 90).length;
   const below    = tracked.filter(x => x.pct < 70).length;
@@ -88,13 +97,12 @@ export default function Dashboard() {
 
   return (
     <div className="page-content">
-      {/* Header row */}
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
         <div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24 }}>KPI Overview</h1>
           <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>ปีงบประมาณ {year}</div>
         </div>
-        {/* Section tabs */}
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
           {SECTIONS.map(s => (
             <button key={s} onClick={() => setSection(s)} style={{
@@ -113,51 +121,22 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Summary Stat Cards ── */}
+      {/* ── Stat Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
-        <StatCard
-          icon="📊"
-          label="Overall Achievement"
-          value={avgPct != null ? `${avgPct}%` : '—'}
-          sub={`${tracked.length} ตัวชี้วัดที่มีข้อมูล`}
-          color={avgPct != null ? achievementColor(avgPct) : 'var(--muted)'}
-        />
-        <StatCard
-          icon="✅"
-          label="On Track"
-          value={onTrack}
-          sub="Achievement ≥ 90%"
-          color="#22c55e"
-        />
-        <StatCard
-          icon="⚠️"
-          label="At Risk"
-          value={atRisk}
-          sub="Achievement 70–89%"
-          color="#f59e0b"
-        />
-        <StatCard
-          icon="🔴"
-          label="Below Target"
-          value={below}
-          sub="Achievement < 70%"
-          color="#e74c3c"
-        />
+        <StatCard icon="📊" label="Overall Achievement" color={avgPct != null ? achievementColor(avgPct) : 'var(--muted)'}
+          value={avgPct != null ? `${avgPct}%` : '—'} sub={`${tracked.length} ตัวชี้วัดที่มีข้อมูล`} />
+        <StatCard icon="✅" label="On Track"    color="#22c55e" value={onTrack} sub="Achievement ≥ 90%" />
+        <StatCard icon="⚠️" label="At Risk"     color="#f59e0b" value={atRisk}  sub="Achievement 70–89%" />
+        <StatCard icon="🔴" label="Below Target" color="#e74c3c" value={below}  sub="Achievement < 70%" />
       </div>
 
       {/* ── Category Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14, marginBottom: 24 }}>
         {CATS.map(cat => {
           const meta = CATEGORY_META[cat];
-          const catItems = visibleItems.filter(i => i.category === cat);
-          const catPcts = catItems.map(item => {
-            if (!maps) return null;
-            const { actual, target } = getItemYTD(item, maps.targetMap, maps.actualMap);
-            return calcAchievement(item, actual, target);
-          }).filter(v => v != null);
-          const avgCatPct = catPcts.length
-            ? catPcts.reduce((a, b) => a + b, 0) / catPcts.length
-            : null;
+          const catItems = visibleItemsWithPct.filter(x => x.item.category === cat);
+          const catPcts  = catItems.map(x => x.pct).filter(v => v != null);
+          const avgCat   = catPcts.length ? catPcts.reduce((a, b) => a + b, 0) / catPcts.length : null;
 
           return (
             <div key={cat} className="card"
@@ -166,12 +145,7 @@ export default function Dashboard() {
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 8px 30px ${meta.color}25`; }}
               onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
             >
-              <div style={{
-                padding: '12px 16px',
-                background: `linear-gradient(135deg, ${meta.color}18, ${meta.color}06)`,
-                borderBottom: `1px solid ${meta.color}28`,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              }}>
+              <div style={{ padding: '12px 16px', background: `linear-gradient(135deg, ${meta.color}18, ${meta.color}06)`, borderBottom: `1px solid ${meta.color}28`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 18 }}>{meta.icon}</span>
                   <div>
@@ -179,31 +153,22 @@ export default function Dashboard() {
                     <div style={{ fontSize: 10, color: 'var(--muted)' }}>{meta.labelTH}</div>
                   </div>
                 </div>
-                <GaugeRing pct={avgCatPct} size={64} />
+                <GaugeRing pct={avgCat} size={64} />
               </div>
-
               <div style={{ padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {catItems.length === 0 && (
-                  <div style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', padding: '6px 0' }}>—</div>
-                )}
-                {catItems.map(item => {
-                  if (!maps) return null;
-                  const { actual, target } = getItemYTD(item, maps.targetMap, maps.actualMap);
-                  const pct = calcAchievement(item, actual, target);
+                {catItems.length === 0 && <div style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', padding: '6px 0' }}>—</div>}
+                {catItems.map(({ item, actual, pct }) => {
                   const clr = achievementColor(pct);
                   return (
                     <div key={item.id}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 9, fontWeight: 700, color: SECTION_COLORS[item.section] ?? 'var(--muted)', background: `${SECTION_COLORS[item.section]}18`, padding: '1px 5px', borderRadius: 3 }}>
-                            {item.section}
-                          </span>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: SECTION_COLORS[item.section] ?? 'var(--muted)', background: `${SECTION_COLORS[item.section]}18`, padding: '1px 5px', borderRadius: 3 }}>{item.section}</span>
                           <span style={{ fontSize: 11, color: 'var(--text2)' }}>{item.name_en}</span>
                         </div>
                         <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                           {actual != null && <span style={{ fontSize: 10, color: 'var(--muted)' }}>{formatValue(item, actual)}</span>}
-                          {pct != null
-                            ? <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)' }}>{Math.round(pct)}%</span>
+                          {pct != null ? <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)' }}>{Math.round(pct)}%</span>
                             : <span style={{ fontSize: 10, color: 'var(--muted)' }}>—</span>}
                         </div>
                       </div>
@@ -222,75 +187,155 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* ── KPI Summary Table ── */}
+      {/* ── KPI Table ── */}
       <div className="card" style={{ overflowX: 'auto' }}>
         <div style={{ padding: '12px 18px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text2)' }}>📋 สรุป KPI ทั้งหมด</span>
-          <span style={{ fontSize: 11, color: 'var(--muted)' }}>{visibleItems.length} รายการ · คลิกเพื่อดูรายละเอียด</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text2)' }}>
+            {section === 'ALL' ? '📋 ภาพรวม KPI — เปรียบเทียบทุกแผนก' : `📋 KPI ของ ${section}`}
+          </span>
+          <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+            {section === 'ALL' ? 'คลิกแถวเพื่อดูรายละเอียด' : `${visibleItemsWithPct.filter(x => x.item.section === section).length} รายการ`}
+          </span>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th style={{ width: 52 }}>No.</th>
-              <th>KPI</th>
-              <th style={{ width: 64 }}>Section</th>
-              <th style={{ width: 100 }}>Actual</th>
-              <th style={{ width: 100 }}>Target</th>
-              <th style={{ width: 150 }}>Achievement</th>
-              <th style={{ width: 88 }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {itemsWithPct.map(({ item, actual, target, pct }) => {
-              const clr = achievementColor(pct);
-              const status = pct == null ? null : pct >= 90 ? 'On Track' : pct >= 70 ? 'At Risk' : 'Below';
-              const statusBg = pct == null ? null : pct >= 90 ? '#22c55e18' : pct >= 70 ? '#f59e0b18' : '#e74c3c18';
-              return (
-                <tr key={item.id} style={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/category/${item.category}`)}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg2)'}
-                  onMouseLeave={e => e.currentTarget.style.background = ''}
-                >
-                  <td style={{ color: 'var(--muted)', fontSize: 11 }}>{item.kpi_no}</td>
-                  <td>
-                    <div style={{ fontWeight: 500, fontSize: 12 }}>{item.name_en}</div>
-                    <div style={{ fontSize: 10, color: 'var(--muted)' }}>{item.commitment}</div>
-                  </td>
-                  <td>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: SECTION_COLORS[item.section] ?? 'var(--muted)', background: `${SECTION_COLORS[item.section] ?? '#888'}18`, padding: '2px 6px', borderRadius: 4 }}>
-                      {item.section}
-                    </span>
-                  </td>
-                  <td style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 12 }}>
-                    {actual != null ? formatValue(item, actual) : <span style={{ color: 'var(--muted)' }}>—</span>}
-                  </td>
-                  <td style={{ color: 'var(--muted)', fontSize: 12 }}>
-                    {target != null ? formatValue(item, target) : '—'}
-                  </td>
-                  <td>
-                    {pct != null ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ flex: 1, height: 5, background: 'var(--border2)', borderRadius: 3 }}>
-                          <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: clr, borderRadius: 3, transition: 'width 0.6s ease' }} />
-                        </div>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)', minWidth: 36, textAlign: 'right' }}>
-                          {Math.round(pct)}%
-                        </span>
-                      </div>
-                    ) : <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>}
-                  </td>
-                  <td>
-                    {status && (
-                      <span style={{ fontSize: 11, fontWeight: 600, color: clr, background: statusBg, padding: '3px 8px', borderRadius: 6 }}>
-                        {status}
+
+        {section === 'ALL' ? (
+          /* ── ALL: Rollup view — one row per KPI type, breakdown by section ── */
+          <table>
+            <thead>
+              <tr>
+                <th>KPI</th>
+                <th>หมวด</th>
+                <th style={{ minWidth: 300 }}>ผลรวมแต่ละแผนก (คลิกเพื่อดูรายละเอียด)</th>
+                <th style={{ width: 120 }}>ภาพรวม</th>
+              </tr>
+            </thead>
+            <tbody>
+              {KPI_GROUPS.map(group => {
+                const meta = CATEGORY_META[group.cat];
+                // find items matching this group
+                const groupItems = allItemsWithPct.filter(x => group.nos.includes(x.item.kpi_no));
+                if (groupItems.length === 0) return null;
+
+                const groupPcts = groupItems.map(x => x.pct).filter(v => v != null);
+                const avgGrp    = groupPcts.length ? Math.round(groupPcts.reduce((a, b) => a + b, 0) / groupPcts.length) : null;
+                const avgClr    = achievementColor(avgGrp);
+
+                return (
+                  <tr key={group.label}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/category/${group.cat}`)}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg2)'}
+                    onMouseLeave={e => e.currentTarget.style.background = ''}
+                  >
+                    <td style={{ fontWeight: 600, fontSize: 13 }}>{group.label}</td>
+                    <td>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: meta.color, background: `${meta.color}18`, padding: '2px 7px', borderRadius: 5 }}>
+                        {meta.icon} {meta.label}
                       </span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td>
+                      {/* Section breakdown badges */}
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                        {groupItems.map(({ item, actual, pct }) => {
+                          const clr = achievementColor(pct);
+                          return (
+                            <div key={item.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, minWidth: 72 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <span style={{ fontSize: 10, fontWeight: 700, color: SECTION_COLORS[item.section] ?? 'var(--muted)' }}>{item.section}</span>
+                                {pct != null
+                                  ? <span style={{ fontSize: 12, fontWeight: 800, color: clr, fontFamily: 'var(--font-display)' }}>{Math.round(pct)}%</span>
+                                  : <span style={{ fontSize: 11, color: 'var(--muted)' }}>—</span>}
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <div style={{ width: 56, height: 4, background: 'var(--border2)', borderRadius: 2 }}>
+                                  <div style={{ height: '100%', width: `${pct ?? 0}%`, background: clr, borderRadius: 2 }} />
+                                </div>
+                              </div>
+                              {actual != null && <span style={{ fontSize: 9, color: 'var(--muted)' }}>{formatValue(item, actual)}</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    <td>
+                      {avgGrp != null ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ flex: 1, height: 6, background: 'var(--border2)', borderRadius: 3 }}>
+                            <div style={{ height: '100%', width: `${Math.min(avgGrp, 100)}%`, background: avgClr, borderRadius: 3 }} />
+                          </div>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: avgClr, fontFamily: 'var(--font-display)', minWidth: 38, textAlign: 'right' }}>
+                            {avgGrp}%
+                          </span>
+                        </div>
+                      ) : <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          /* ── Section view: individual KPIs for the selected section ── */
+          <table>
+            <thead>
+              <tr>
+                <th style={{ width: 52 }}>No.</th>
+                <th>KPI</th>
+                <th style={{ width: 100 }}>Actual</th>
+                <th style={{ width: 100 }}>Target</th>
+                <th style={{ width: 160 }}>Achievement</th>
+                <th style={{ width: 88 }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allItemsWithPct
+                .filter(x => x.item.section === section || x.item.section === 'ALL')
+                .map(({ item, actual, target, pct }) => {
+                  const clr = achievementColor(pct);
+                  const status   = pct == null ? null : pct >= 90 ? 'On Track' : pct >= 70 ? 'At Risk' : 'Below';
+                  const statusBg = pct == null ? null : pct >= 90 ? '#22c55e18' : pct >= 70 ? '#f59e0b18' : '#e74c3c18';
+                  return (
+                    <tr key={item.id} style={{ cursor: 'pointer' }}
+                      onClick={() => navigate(`/category/${item.category}`)}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg2)'}
+                      onMouseLeave={e => e.currentTarget.style.background = ''}
+                    >
+                      <td style={{ color: 'var(--muted)', fontSize: 11 }}>{item.kpi_no}</td>
+                      <td>
+                        <div style={{ fontWeight: 500, fontSize: 12 }}>{item.name_en}</div>
+                        <div style={{ fontSize: 10, color: 'var(--muted)' }}>{item.commitment}</div>
+                      </td>
+                      <td style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 12 }}>
+                        {actual != null ? formatValue(item, actual) : <span style={{ color: 'var(--muted)' }}>—</span>}
+                      </td>
+                      <td style={{ color: 'var(--muted)', fontSize: 12 }}>
+                        {target != null ? formatValue(item, target) : '—'}
+                      </td>
+                      <td>
+                        {pct != null ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ flex: 1, height: 5, background: 'var(--border2)', borderRadius: 3 }}>
+                              <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: clr, borderRadius: 3 }} />
+                            </div>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)', minWidth: 36, textAlign: 'right' }}>
+                              {Math.round(pct)}%
+                            </span>
+                          </div>
+                        ) : <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>}
+                      </td>
+                      <td>
+                        {status && (
+                          <span style={{ fontSize: 11, fontWeight: 600, color: clr, background: statusBg, padding: '3px 8px', borderRadius: 6 }}>
+                            {status}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
