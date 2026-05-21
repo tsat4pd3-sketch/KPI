@@ -68,13 +68,24 @@ export default function Layout() {
         transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)',
         zIndex: 1000,
       }}>
-        {/* Logo */}
-        <div style={{ padding: '22px 6px 18px', borderBottom: '1px solid var(--border)', marginBottom: 10, whiteSpace: 'nowrap' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ color: 'var(--accent)', fontSize: 22 }}>KPI</span>
-            <span style={{ color: 'var(--text2)', fontWeight: 400, fontSize: 13 }}>Dashboard</span>
+        {/* Brand header */}
+        <div style={{ padding: '18px 6px 14px', borderBottom: '1px solid var(--border)', marginBottom: 10, whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            {/* TSG triangle mark */}
+            <div style={{ width: 28, height: 28, background: 'var(--accent)', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="14" height="13" viewBox="0 0 14 13" fill="none">
+                <path d="M7 1L13 12H1L7 1Z" fill="rgba(255,255,255,0.9)"/>
+                <path d="M7 5L10 12H4L7 5Z" fill="var(--accent)"/>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 13, color: 'var(--accent)', lineHeight: 1.1, letterSpacing: '0.04em' }}>
+                THAI SUMMIT
+              </div>
+              <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>KPI Dashboard</div>
+            </div>
           </div>
-          <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2, letterSpacing: '0.1em' }}>BALANCED SCORECARD</div>
+          <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginLeft: 36 }}>BALANCED SCORECARD</div>
         </div>
 
         {/* Year selector */}
@@ -99,7 +110,7 @@ export default function Layout() {
               to={to}
               className="nav-link"
               style={location.pathname === to
-                ? { background: 'rgba(227,25,55,0.12)', color: 'var(--accent)', borderLeft: '2px solid var(--accent)' }
+                ? { background: 'var(--accent-dim)', color: 'var(--accent)', borderLeft: '2px solid var(--accent)', fontWeight: 700 }
                 : {}}
               onClick={() => isMobile && setOpen(false)}
             >
