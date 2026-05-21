@@ -33,13 +33,30 @@ export async function saveRawInputAndCompute(rawRecord, items, yearRaws) {
     rawRecord,
   ];
 
-  // 3. Compute & save current month's actuals
+  // 3. Compute & save current section's actuals
   const computed = computeActuals(rawRecord, items, updatedRaws, month);
   await Promise.all(
     Object.entries(computed).map(([kpi_item_id, val]) =>
       upsertActual({ kpi_item_id, year, month, actual_value: +val.toFixed(6), note: '' })
     )
   );
+
+  // 4. When ALL section changes (sales_total updated), recompute DL%/OH% for section records
+  if (section === 'ALL') {
+    const siblings = updatedRaws.filter(r =>
+      ['PD3', 'PD4', 'JIG'].includes(r.section) && r.year === year && r.month === month
+    );
+    for (const sib of siblings) {
+      const sibComputed = computeActuals(sib, items, updatedRaws, month);
+      if (Object.keys(sibComputed).length > 0) {
+        await Promise.all(
+          Object.entries(sibComputed).map(([kpi_item_id, val]) =>
+            upsertActual({ kpi_item_id, year, month, actual_value: +val.toFixed(6), note: '' })
+          )
+        );
+      }
+    }
+  }
 
   return updatedRaws;
 }
@@ -56,11 +73,15 @@ export function computeActuals(raw, items, allRaws, month) {
     const dlTotal = (raw.dl_salary || 0) + (raw.dl_ot || 0) + (raw.dl_bonus || 0);
     const ohTotal = (raw.oh_usage || 0) + (raw.oh_spare_part || 0) + (raw.oh_repair || 0) + (raw.oh_other || 0);
 
-    if ((raw.sales_total || 0) > 0) {
+    // sales_total is entered once in the factory-wide (ALL) record; fallback to raw for backwards compat
+    const factoryRaw = allRaws?.find(r => r.section === 'ALL' && r.year === yr && r.month === month);
+    const salesTotal = factoryRaw?.sales_total || raw.sales_total || 0;
+
+    if (salesTotal > 0) {
       const dlNo = sec === 'PD3' ? '1.1' : sec === 'PD4' ? '1.3' : '1.5';
       const ohNo = sec === 'PD3' ? '1.2' : sec === 'PD4' ? '1.4' : '1.6';
-      if (findId(dlNo)) res[findId(dlNo)] = dlTotal / raw.sales_total * 100;
-      if (findId(ohNo)) res[findId(ohNo)] = ohTotal / raw.sales_total * 100;
+      if (findId(dlNo)) res[findId(dlNo)] = dlTotal / salesTotal * 100;
+      if (findId(ohNo)) res[findId(ohNo)] = ohTotal / salesTotal * 100;
     }
 
     if ((raw.sales_division || 0) > 0) {
@@ -137,6 +158,8 @@ export function buildDrillDown(item, raw, allRaws) {
 
   if (['1.1', '1.3', '1.5'].includes(no)) {
     const dl = (raw.dl_salary || 0) + (raw.dl_ot || 0) + (raw.dl_bonus || 0);
+    const factoryRaw = allRaws?.find(r => r.section === 'ALL' && r.year === raw.year && r.month === raw.month);
+    const factorySales = factoryRaw?.sales_total ?? raw.sales_total ?? 0;
     return {
       title: 'Direct Labour Cost',
       rows: [
@@ -145,13 +168,15 @@ export function buildDrillDown(item, raw, allRaws) {
         ['DL Bonus', fmtB(raw.dl_bonus)],
         ['—', '—'],
         ['Total DL', fmtB(dl)],
-        ['Factory Sales', fmtB(raw.sales_total)],
+        ['Factory Sales (รวมโรงงาน)', fmtB(factorySales)],
       ],
-      formula: raw.sales_total > 0 ? `DL% = ${fmtB(dl)} / ${fmtB(raw.sales_total)} × 100 = ${(dl / raw.sales_total * 100).toFixed(4)}%` : null,
+      formula: factorySales > 0 ? `DL% = ${fmtB(dl)} / ${fmtB(factorySales)} × 100 = ${(dl / factorySales * 100).toFixed(4)}%` : null,
     };
   }
   if (['1.2', '1.4', '1.6'].includes(no)) {
     const oh = (raw.oh_usage || 0) + (raw.oh_spare_part || 0) + (raw.oh_repair || 0) + (raw.oh_other || 0);
+    const factoryRaw = allRaws?.find(r => r.section === 'ALL' && r.year === raw.year && r.month === raw.month);
+    const factorySales = factoryRaw?.sales_total ?? raw.sales_total ?? 0;
     return {
       title: 'Overhead Cost',
       rows: [
@@ -161,9 +186,9 @@ export function buildDrillDown(item, raw, allRaws) {
         ['OH Other', fmtB(raw.oh_other)],
         ['—', '—'],
         ['Total OH', fmtB(oh)],
-        ['Factory Sales', fmtB(raw.sales_total)],
+        ['Factory Sales (รวมโรงงาน)', fmtB(factorySales)],
       ],
-      formula: raw.sales_total > 0 ? `OH% = ${fmtB(oh)} / ${fmtB(raw.sales_total)} × 100 = ${(oh / raw.sales_total * 100).toFixed(4)}%` : null,
+      formula: factorySales > 0 ? `OH% = ${fmtB(oh)} / ${fmtB(factorySales)} × 100 = ${(oh / factorySales * 100).toFixed(4)}%` : null,
     };
   }
   if (no === '2.1') {
