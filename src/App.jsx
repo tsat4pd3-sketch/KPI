@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import CategoryPage from './pages/CategoryPage';
 import DataEntry from './pages/DataEntry';
 import TargetSetting from './pages/TargetSetting';
+import TrendPage from './pages/TrendPage';
 
 export const AppCtx = createContext({});
 export const useApp = () => useContext(AppCtx);
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/category/:cat" element={<CategoryPage />} />
             <Route path="/entry" element={<DataEntry />} />
             <Route path="/targets" element={<TargetSetting />} />
+            <Route path="/trends" element={<TrendPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
