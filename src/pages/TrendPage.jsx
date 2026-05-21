@@ -178,6 +178,7 @@ export default function TrendPage() {
               background: isSel ? TSG.green : '#fff',
               color: isSel ? '#fff' : TSG.green,
               cursor: 'pointer', letterSpacing: '0.03em',
+              transition: 'all 0.15s',
             }}>{label}</button>
           );
         })}
@@ -283,7 +284,7 @@ export default function TrendPage() {
                           <span style={{ fontWeight: 800, color: statusColor }}>{Math.round(pct)}%</span>
                         </div>
                         <div style={{ height: 5, background: '#e5e7eb', borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: statusColor, borderRadius: 3 }} />
+                          <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: statusColor, borderRadius: 3, transition: 'width 0.6s ease' }} />
                         </div>
                       </div>
                     ) : (
