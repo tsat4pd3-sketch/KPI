@@ -1,4 +1,4 @@
-import { GSHEET_OEE_URL } from '../config';
+import { GSHEET_OEE_URL, OEE_LINES } from '../config';
 
 let _rows = null;
 let _ts = 0;
@@ -36,6 +36,11 @@ function parseDate(val) {
   return { year: y, month: +m[2] };
 }
 
+function lineBelongsTo(lineName, section) {
+  const upper = (lineName || '').toUpperCase();
+  return (OEE_LINES[section] || []).some(l => upper.includes(l.toUpperCase()));
+}
+
 async function getRows() {
   const now = Date.now();
   if (_rows && now - _ts < TTL) return _rows;
@@ -48,27 +53,40 @@ async function getRows() {
 
 export async function getOEEByYear(year) {
   const rows = await getRows();
-  const buckets = {};
-  for (let m = 1; m <= 12; m++) buckets[m] = { oees: [], defects: [] };
+  const b = {};
+  for (let m = 1; m <= 12; m++) {
+    b[m] = { oees_pd3: [], defs_pd3: [], oees_pd4: [], defs_pd4: [] };
+  }
 
   rows.forEach(r => {
     const d = parseDate(r['วันที่ที่ผลิตงาน']);
     if (!d || d.year !== year) return;
+    const line = r['เลือกไลน์การผลิต'] || '';
     const oee = parseFloat(r['OEE']);
     const def = parseFloat(r['Defect']);
-    if (!isNaN(oee) && oee > 0) {
-      buckets[d.month].oees.push(oee <= 1 ? +(oee * 100).toFixed(2) : +oee.toFixed(2));
+    const isPD3 = lineBelongsTo(line, 'PD3');
+    const isPD4 = lineBelongsTo(line, 'PD4');
+    const toOEE = v => (v <= 1 ? +(v * 100).toFixed(2) : +v.toFixed(2));
+
+    if (isPD3) {
+      if (!isNaN(oee) && oee > 0) b[d.month].oees_pd3.push(toOEE(oee));
+      if (!isNaN(def) && def >= 0) b[d.month].defs_pd3.push(+def.toFixed(2));
     }
-    if (!isNaN(def) && def >= 0) {
-      buckets[d.month].defects.push(+def.toFixed(2));
+    if (isPD4) {
+      if (!isNaN(oee) && oee > 0) b[d.month].oees_pd4.push(toOEE(oee));
+      if (!isNaN(def) && def >= 0) b[d.month].defs_pd4.push(+def.toFixed(2));
     }
   });
 
+  const avg = arr => arr.length ? +(arr.reduce((a, c) => a + c, 0) / arr.length).toFixed(2) : null;
   return Array.from({ length: 12 }, (_, i) => {
     const m = i + 1;
-    const avg = arr => arr.length
-      ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2)
-      : null;
-    return { month: m, oee: avg(buckets[m].oees), defect: avg(buckets[m].defects) };
+    return {
+      month: m,
+      oee_pd3:    avg(b[m].oees_pd3),
+      defect_pd3: avg(b[m].defs_pd3),
+      oee_pd4:    avg(b[m].oees_pd4),
+      defect_pd4: avg(b[m].defs_pd4),
+    };
   });
 }
