@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import tsLogo from '../components/TS logo.png';
 
 // ─── CSS keyframes + utility classes ─────────────────────────────────────────
 const LANDING_CSS = `
@@ -144,36 +145,22 @@ function Particles() {
   );
 }
 
-// ─── Logo SVG face — Thai Summit Group TS monogram ───────────────────────────
+// ─── Logo face — uses real TS logo PNG ───────────────────────────────────────
 function LogoFace({ lit }) {
-  const white = lit ? '#ffffff' : '#3a1004';
-  const bg    = lit ? null      : '#5a1c08';
   return (
-    <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', display: 'block' }}>
-      {lit && (
-        <defs>
-          <linearGradient id="ts-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%"   stopColor="#f57c28" />
-            <stop offset="100%" stopColor="#c84010" />
-          </linearGradient>
-        </defs>
-      )}
-
-      {/* Orange rounded-square background */}
-      <rect width="100" height="100" rx="14"
-        fill={lit ? 'url(#ts-bg)' : bg}
+    <div style={{
+      width: '100%', height: '100%',
+      borderRadius: '14%',
+      overflow: 'hidden',
+      filter: lit ? 'none' : 'brightness(0.18) saturate(0.4)',
+    }}>
+      <img
+        src={tsLogo}
+        alt=""
+        draggable={false}
+        style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain', userSelect: 'none' }}
       />
-
-      {/* ── T — full-width crossbar + left stem ── */}
-      <rect x="7"  y="7" width="86" height="20" rx="2" fill={white} />
-      <rect x="7"  y="7" width="20" height="86" rx="2" fill={white} />
-
-      {/* ── S — interlocks with T ── */}
-      <rect x="74" y="7"  width="19" height="42" rx="2" fill={white} />
-      <rect x="40" y="40" width="53" height="20" rx="2" fill={white} />
-      <rect x="40" y="40" width="19" height="53" rx="2" fill={white} />
-      <rect x="40" y="74" width="53" height="19" rx="2" fill={white} />
-    </svg>
+    </div>
   );
 }
 
@@ -233,6 +220,7 @@ function Logo3D() {
                 background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)',
                 animation: 'tsg-shine-sweep 5.5s ease-in-out 2s infinite',
               }} />
+              {/* Fresnel highlight */}
               <div style={{
                 position: 'absolute', inset: 0,
                 background: 'radial-gradient(ellipse 56% 36% at 36% 28%, rgba(255,255,255,0.10), transparent 66%)',
@@ -287,6 +275,7 @@ export default function LandingPage() {
         alignItems: 'center', justifyContent: 'center',
         padding: '60px 24px 110px', textAlign: 'center', overflow: 'hidden',
       }}>
+        {/* Perspective grid */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           backgroundImage: `
@@ -295,6 +284,7 @@ export default function LandingPage() {
           backgroundSize: '64px 64px',
           animation: 'lp-grid-in 3s ease both',
         }} />
+        {/* Radial vignette */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(ellipse 72% 56% at 50% 46%, rgba(13,61,20,0.30), transparent 76%)',
@@ -353,6 +343,7 @@ export default function LandingPage() {
           </span>
         </div>
 
+        {/* Heading */}
         <h1 style={{
           position: 'relative', zIndex: 2, margin: '0 0 20px',
           fontSize: 'clamp(34px, 6.5vw, 68px)',
@@ -365,6 +356,7 @@ export default function LandingPage() {
           Thai Summit Group<br />KPI Dashboard
         </h1>
 
+        {/* Subtitle */}
         <p style={{
           position: 'relative', zIndex: 2, margin: '0 0 46px',
           fontSize: 'clamp(14px, 2vw, 18px)',
@@ -375,6 +367,7 @@ export default function LandingPage() {
           ครอบคลุมทุกแผนก · ตรวจสอบได้แบบเรียลไทม์
         </p>
 
+        {/* CTA row */}
         <div style={{
           position: 'relative', zIndex: 2,
           display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center',
@@ -401,6 +394,7 @@ export default function LandingPage() {
           </button>
         </div>
 
+        {/* Scroll cue */}
         <div style={{
           position: 'absolute', bottom: 30, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
@@ -452,6 +446,7 @@ export default function LandingPage() {
               ตัวเลขที่บอกทุกอย่าง
             </h2>
           </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: 16 }}>
             {STATS.map(({ num, tag, label, icon }, i) => (
               <div key={i} className="lp-stat-card" style={{
@@ -461,9 +456,18 @@ export default function LandingPage() {
                 boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
               }}>
                 <div style={{ fontSize: 30, marginBottom: 12 }}>{icon}</div>
-                <div style={{ fontSize: 46, fontWeight: 900, lineHeight: 1, color: '#3dd65c', letterSpacing: '-1.5px' }}>{num}</div>
-                <div style={{ fontSize: 9.5, color: 'rgba(232,245,234,0.35)', letterSpacing: 2.8, marginTop: 6, textTransform: 'uppercase' }}>{tag}</div>
-                <div style={{ fontSize: 13, color: 'rgba(232,245,234,0.62)', marginTop: 10, lineHeight: 1.45 }}>{label}</div>
+                <div style={{
+                  fontSize: 46, fontWeight: 900, lineHeight: 1,
+                  color: '#3dd65c', letterSpacing: '-1.5px',
+                }}>{num}</div>
+                <div style={{
+                  fontSize: 9.5, color: 'rgba(232,245,234,0.35)',
+                  letterSpacing: 2.8, marginTop: 6, textTransform: 'uppercase',
+                }}>{tag}</div>
+                <div style={{
+                  fontSize: 13, color: 'rgba(232,245,234,0.62)',
+                  marginTop: 10, lineHeight: 1.45,
+                }}>{label}</div>
               </div>
             ))}
           </div>
@@ -472,7 +476,8 @@ export default function LandingPage() {
 
       {/* ══ FEATURES ══════════════════════════════════════════════════════════ */}
       <section id="lp-features" style={{
-        padding: '82px 24px', background: '#071409',
+        padding: '82px 24px',
+        background: '#071409',
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{ maxWidth: 940, margin: '0 auto' }}>
@@ -486,12 +491,18 @@ export default function LandingPage() {
               fontSize: 'clamp(24px, 4vw, 44px)', fontWeight: 800, margin: 0,
               background: 'linear-gradient(135deg, #e8f5ea 0%, #3dd65c 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>ครบทุกมิติของ KPI</h2>
-            <p style={{ color: 'rgba(232,245,234,0.46)', fontSize: 14, lineHeight: 1.82, maxWidth: 480, margin: '16px auto 0' }}>
+            }}>
+              ครบทุกมิติของ KPI
+            </h2>
+            <p style={{
+              color: 'rgba(232,245,234,0.46)', marginTop: 16,
+              fontSize: 14, lineHeight: 1.82, maxWidth: 480, margin: '16px auto 0',
+            }}>
               ออกแบบมาเพื่อการบริหารจัดการผลการดำเนินงาน<br />
               ระดับโรงงานอุตสาหกรรมยานยนต์
             </p>
           </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))', gap: 22 }}>
             {FEATURES.map(({ icon, title, titleTH, desc }, i) => (
               <div key={i} className="lp-feat-card" style={{
@@ -503,12 +514,22 @@ export default function LandingPage() {
                 <div style={{
                   width: 56, height: 56, borderRadius: 16, fontSize: 24,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(61,214,92,0.08)', border: '1px solid rgba(61,214,92,0.18)',
+                  background: 'rgba(61,214,92,0.08)',
+                  border: '1px solid rgba(61,214,92,0.18)',
                   marginBottom: 24,
                 }}>{icon}</div>
-                <div style={{ fontSize: 16.5, fontWeight: 700, color: '#e8f5ea', marginBottom: 5, lineHeight: 1.3 }}>{title}</div>
-                <div style={{ fontSize: 12, color: '#3dd65c', fontWeight: 600, marginBottom: 15, letterSpacing: '0.02em' }}>{titleTH}</div>
-                <p style={{ fontSize: 13.5, color: 'rgba(232,245,234,0.50)', lineHeight: 1.78, margin: 0 }}>{desc}</p>
+                <div style={{
+                  fontSize: 16.5, fontWeight: 700, color: '#e8f5ea',
+                  marginBottom: 5, lineHeight: 1.3,
+                }}>{title}</div>
+                <div style={{
+                  fontSize: 12, color: '#3dd65c', fontWeight: 600,
+                  marginBottom: 15, letterSpacing: '0.02em',
+                }}>{titleTH}</div>
+                <p style={{
+                  fontSize: 13.5, color: 'rgba(232,245,234,0.50)',
+                  lineHeight: 1.78, margin: 0,
+                }}>{desc}</p>
               </div>
             ))}
           </div>
@@ -523,29 +544,27 @@ export default function LandingPage() {
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{ maxWidth: 540, margin: '0 auto' }}>
+          {/* Mini emblem — real PNG logo */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
             <div style={{
-              width: 72, height: 72, borderRadius: 14,
-              background: 'linear-gradient(138deg, #f57c28, #c84010)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 72, height: 72, borderRadius: 14, overflow: 'hidden',
               boxShadow: '0 0 40px rgba(230,100,20,0.30), 0 0 0 8px rgba(230,100,20,0.08)',
             }}>
-              <svg viewBox="0 0 100 100" width="52" height="52">
-                <rect x="7" y="7" width="86" height="20" rx="2" fill="#fff" />
-                <rect x="7" y="7" width="20" height="86" rx="2" fill="#fff" />
-                <rect x="74" y="7"  width="19" height="42" rx="2" fill="#fff" />
-                <rect x="40" y="40" width="53" height="20" rx="2" fill="#fff" />
-                <rect x="40" y="40" width="19" height="53" rx="2" fill="#fff" />
-                <rect x="40" y="74" width="53" height="19" rx="2" fill="#fff" />
-              </svg>
+              <img src={tsLogo} alt="Thai Summit Group" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             </div>
           </div>
+
           <h2 style={{
             fontSize: 'clamp(22px, 4vw, 40px)', fontWeight: 800, marginBottom: 16,
             background: 'linear-gradient(135deg, #e8f5ea, #3dd65c)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>พร้อมเริ่มต้นแล้วหรือยัง?</h2>
-          <p style={{ color: 'rgba(232,245,234,0.46)', fontSize: 14.5, lineHeight: 1.88, marginBottom: 40 }}>
+          }}>
+            พร้อมเริ่มต้นแล้วหรือยัง?
+          </h2>
+          <p style={{
+            color: 'rgba(232,245,234,0.46)', fontSize: 14.5,
+            lineHeight: 1.88, marginBottom: 40,
+          }}>
             เข้าสู่ระบบเพื่อดูภาพรวม KPI ล่าสุด<br />
             พร้อมข้อมูลเชิงลึกสำหรับการตัดสินใจอย่างแม่นยำ
           </p>
@@ -554,10 +573,16 @@ export default function LandingPage() {
             background: 'linear-gradient(138deg, #1a7a35 0%, #3dd65c 100%)',
             color: '#fff', fontSize: 16, fontWeight: 700, letterSpacing: '0.04em',
             boxShadow: '0 10px 48px rgba(61,214,92,0.34), 0 2px 8px rgba(0,0,0,0.42)',
-          }}>เข้าสู่ระบบ →</button>
+          }}>
+            เข้าสู่ระบบ →
+          </button>
+
+          {/* Trust badges */}
           <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
             {['🔒 Secure Login', '⚡ Real-time Data', '📱 Responsive'].map((t, i) => (
-              <span key={i} style={{ fontSize: 11, color: 'rgba(232,245,234,0.34)', fontWeight: 500, letterSpacing: '0.02em' }}>{t}</span>
+              <span key={i} style={{
+                fontSize: 11, color: 'rgba(232,245,234,0.34)', fontWeight: 500, letterSpacing: '0.02em',
+              }}>{t}</span>
             ))}
           </div>
         </div>
@@ -565,29 +590,24 @@ export default function LandingPage() {
 
       {/* ══ FOOTER ════════════════════════════════════════════════════════════ */}
       <footer style={{
-        padding: '22px 28px', background: '#040c05',
+        padding: '22px 28px',
+        background: '#040c05',
         borderTop: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 26, height: 26, borderRadius: 6,
-            background: 'linear-gradient(138deg, #f57c28, #c84010)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg viewBox="0 0 100 100" width="18" height="18">
-              <rect x="7" y="7" width="86" height="20" rx="2" fill="#fff" />
-              <rect x="7" y="7" width="20" height="86" rx="2" fill="#fff" />
-              <rect x="74" y="7"  width="19" height="42" rx="2" fill="#fff" />
-              <rect x="40" y="40" width="53" height="20" rx="2" fill="#fff" />
-              <rect x="40" y="40" width="19" height="53" rx="2" fill="#fff" />
-              <rect x="40" y="74" width="53" height="19" rx="2" fill="#fff" />
-            </svg>
+          {/* Footer logo mark — real PNG */}
+          <div style={{ width: 26, height: 26, borderRadius: 6, overflow: 'hidden' }}>
+            <img src={tsLogo} alt="TSG" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
           </div>
-          <span style={{ fontSize: 12, fontWeight: 800, color: '#3dd65c', letterSpacing: '0.10em' }}>THAI SUMMIT GROUP</span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#3dd65c', letterSpacing: '0.10em' }}>
+            THAI SUMMIT GROUP
+          </span>
         </div>
-        <span style={{ fontSize: 11, color: 'rgba(232,245,234,0.26)', letterSpacing: '0.04em' }}>
+        <span style={{
+          fontSize: 11, color: 'rgba(232,245,234,0.26)', letterSpacing: '0.04em',
+        }}>
           KPI Performance Intelligence Platform
         </span>
       </footer>
