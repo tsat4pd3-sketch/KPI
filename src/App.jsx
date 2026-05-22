@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -49,7 +49,7 @@ export default function App() {
 
   return (
     <AppCtx.Provider value={ctx}>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/" element={session ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
           <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <Login />} />
@@ -61,7 +61,7 @@ export default function App() {
             <Route path="/trends" element={<TrendPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AppCtx.Provider>
   );
 }
