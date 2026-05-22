@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { supabase } from './supabaseClient';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import CategoryPage from './pages/CategoryPage';
 import DataEntry from './pages/DataEntry';
@@ -50,9 +51,10 @@ export default function App() {
     <AppCtx.Provider value={ctx}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={session ? <Navigate to="/" replace /> : <Login />} />
+          <Route path="/" element={session ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+          <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <Login />} />
           <Route element={<ProtectedLayout session={session} />}>
-            <Route index element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/category/:cat" element={<CategoryPage />} />
             <Route path="/entry" element={<DataEntry />} />
             <Route path="/targets" element={<TargetSetting />} />
