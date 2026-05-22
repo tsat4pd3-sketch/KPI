@@ -169,13 +169,9 @@ function LogoFace({ lit }) {
       <rect x="7"  y="7" width="20" height="86" rx="2" fill={white} />
 
       {/* ── S — interlocks with T ── */}
-      {/* S right upper vertical */}
       <rect x="74" y="7"  width="19" height="42" rx="2" fill={white} />
-      {/* S middle crossbar */}
       <rect x="40" y="40" width="53" height="20" rx="2" fill={white} />
-      {/* S left lower vertical */}
       <rect x="40" y="40" width="19" height="53" rx="2" fill={white} />
-      {/* S bottom bar */}
       <rect x="40" y="74" width="53" height="19" rx="2" fill={white} />
     </svg>
   );
@@ -237,7 +233,7 @@ function Logo3D() {
                 background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)',
                 animation: 'tsg-shine-sweep 5.5s ease-in-out 2s infinite',
               }} />
-              {/* Fresnel highlight (static) */}
+              {/* Fresnel highlight */}
               <div style={{
                 position: 'absolute', inset: 0,
                 background: 'radial-gradient(ellipse 56% 36% at 36% 28%, rgba(255,255,255,0.10), transparent 66%)',
