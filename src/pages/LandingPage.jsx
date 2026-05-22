@@ -144,99 +144,35 @@ function Particles() {
   );
 }
 
-// ─── Logo SVG face (lit = front face, unlit = extrusion layer) ───────────────
+// ─── Logo SVG face — Thai Summit Group TS monogram ───────────────────────────
 function LogoFace({ lit }) {
+  const white = lit ? '#ffffff' : '#3a1004';
+  const bg    = lit ? null      : '#5a1c08';
   return (
-    <svg viewBox="0 0 240 240" style={{ width: '100%', height: '100%', display: 'block' }}>
+    <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', display: 'block' }}>
       {lit && (
         <defs>
-          <radialGradient id="lf-bg" cx="40%" cy="32%" r="68%">
-            <stop offset="0%"   stopColor="#2a7040" />
-            <stop offset="100%" stopColor="#06130a" />
-          </radialGradient>
-          <radialGradient id="lf-m1" cx="50%" cy="85%" r="85%">
-            <stop offset="0%"   stopColor="#60e885" />
-            <stop offset="100%" stopColor="#145f2a" />
-          </radialGradient>
-          <radialGradient id="lf-m2" cx="50%" cy="85%" r="85%">
-            <stop offset="0%"   stopColor="#3ec860" />
-            <stop offset="100%" stopColor="#0e4e20" />
-          </radialGradient>
-          <filter id="lf-glow" x="-25%" y="-25%" width="150%" height="150%">
-            <feGaussianBlur stdDeviation="2.5" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <filter id="lf-inner-glow" x="-10%" y="-10%" width="120%" height="120%">
-            <feGaussianBlur stdDeviation="1.2" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
+          <linearGradient id="ts-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stopColor="#f57c28" />
+            <stop offset="100%" stopColor="#c84010" />
+          </linearGradient>
         </defs>
       )}
 
-      {/* Outer circle */}
-      <circle cx="120" cy="120" r="115"
-        fill={lit ? 'url(#lf-bg)' : '#060e07'}
-        stroke={lit ? '#c9a227' : '#09160a'}
-        strokeWidth={lit ? 3.5 : 0.7}
+      {/* Orange rounded-square background */}
+      <rect width="100" height="100" rx="14"
+        fill={lit ? 'url(#ts-bg)' : bg}
       />
-      {/* Inner ring */}
-      {lit && (
-        <circle cx="120" cy="120" r="105" fill="none"
-          stroke="rgba(201,162,39,0.28)" strokeWidth={0.8}
-        />
-      )}
 
-      {/* ── Mountain group ── */}
-      {/* Far silhouette peak */}
-      <polygon points="120,48 156,150 84,150"
-        fill={lit ? 'rgba(255,255,255,0.08)' : '#030c04'} />
-      {lit && <polygon points="120,48 133,82 107,82" fill="rgba(255,255,255,0.46)" />}
+      {/* ── T — full-width crossbar + left stem ── */}
+      <rect x="7"  y="7" width="86" height="20" rx="2" fill={white} />
+      <rect x="7"  y="7" width="20" height="86" rx="2" fill={white} />
 
-      {/* Left peak */}
-      <polygon points="72,170 107,86 140,170"
-        fill={lit ? 'url(#lf-m1)' : '#091e0d'} />
-      {lit && <polygon points="107,86 119,116 95,116" fill="rgba(255,255,255,0.58)" filter="url(#lf-inner-glow)" />}
-
-      {/* Right peak */}
-      <polygon points="105,170 141,72 170,170"
-        fill={lit ? 'url(#lf-m2)' : '#071508'} />
-      {lit && <polygon points="141,72 153,104 129,104" fill="rgba(255,255,255,0.52)" filter="url(#lf-inner-glow)" />}
-
-      {/* Ground line */}
-      {lit && (
-        <rect x="60" y="168" width="120" height="2.2" rx="1.1"
-          fill="rgba(201,162,39,0.44)"
-        />
-      )}
-
-      {/* ── Arc text ── */}
-      {lit && (
-        <>
-          <path id="lf-top" d="M 17,118 A 103,103 0 0,1 223,118" fill="none" />
-          <text fontSize="7.8" fontFamily="Inter,sans-serif" fontWeight="700"
-            letterSpacing="3.4" fill="rgba(201,162,39,0.94)">
-            <textPath href="#lf-top" startOffset="50%" textAnchor="middle">
-              THAI SUMMIT GROUP
-            </textPath>
-          </text>
-
-          <path id="lf-bot" d="M 26,128 A 94,94 0 0,0 214,128" fill="none" />
-          <text fontSize="5.8" fontFamily="Inter,sans-serif" fontWeight="500"
-            letterSpacing="2.8" fill="rgba(201,162,39,0.55)">
-            <textPath href="#lf-bot" startOffset="50%" textAnchor="middle">
-              EXCELLENCE IN MANUFACTURING
-            </textPath>
-          </text>
-        </>
-      )}
-
-      {/* TSG monogram */}
-      {lit && (
-        <text x="120" y="196" textAnchor="middle"
-          fontSize="23" fontFamily="Inter,sans-serif" fontWeight="900"
-          letterSpacing="7" fill="#d4af37" filter="url(#lf-glow)"
-        >TSG</text>
-      )}
+      {/* ── S — interlocks with T ── */}
+      <rect x="74" y="7"  width="19" height="42" rx="2" fill={white} />
+      <rect x="40" y="40" width="53" height="20" rx="2" fill={white} />
+      <rect x="40" y="40" width="19" height="53" rx="2" fill={white} />
+      <rect x="40" y="74" width="53" height="19" rx="2" fill={white} />
     </svg>
   );
 }
@@ -249,8 +185,8 @@ function Logo3D() {
     <div style={{ position: 'relative', width: 288, height: 288 }}>
       {/* Glow halo */}
       <div style={{
-        position: 'absolute', inset: -32, borderRadius: '50%', zIndex: 0,
-        background: 'radial-gradient(circle, rgba(42,138,72,0.24) 0%, transparent 70%)',
+        position: 'absolute', inset: -32, borderRadius: '18%', zIndex: 0,
+        background: 'radial-gradient(circle, rgba(230,100,20,0.32) 0%, transparent 68%)',
         animation: 'tsg-glow-pulse 8s ease-in-out infinite',
         pointerEvents: 'none',
       }} />
@@ -289,7 +225,7 @@ function Logo3D() {
             {/* Specular sweep */}
             <div style={{
               position: 'absolute', inset: 0, transform: 'translateZ(1.5px)',
-              borderRadius: '50%', overflow: 'hidden', pointerEvents: 'none',
+              borderRadius: '14%', overflow: 'hidden', pointerEvents: 'none',
             }}>
               <div style={{
                 position: 'absolute', top: 0, bottom: 0,
@@ -297,7 +233,6 @@ function Logo3D() {
                 background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)',
                 animation: 'tsg-shine-sweep 5.5s ease-in-out 2s infinite',
               }} />
-              {/* Fresnel highlight (static) */}
               <div style={{
                 position: 'absolute', inset: 0,
                 background: 'radial-gradient(ellipse 56% 36% at 36% 28%, rgba(255,255,255,0.10), transparent 66%)',
@@ -352,7 +287,6 @@ export default function LandingPage() {
         alignItems: 'center', justifyContent: 'center',
         padding: '60px 24px 110px', textAlign: 'center', overflow: 'hidden',
       }}>
-        {/* Perspective grid */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           backgroundImage: `
@@ -361,12 +295,10 @@ export default function LandingPage() {
           backgroundSize: '64px 64px',
           animation: 'lp-grid-in 3s ease both',
         }} />
-        {/* Radial vignette */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(ellipse 72% 56% at 50% 46%, rgba(13,61,20,0.30), transparent 76%)',
         }} />
-        {/* Top corner accent */}
         <div style={{
           position: 'absolute', top: -120, right: -120, width: 400, height: 400,
           borderRadius: '50%', pointerEvents: 'none',
@@ -384,8 +316,24 @@ export default function LandingPage() {
         <div style={{
           position: 'relative', zIndex: 2, marginBottom: 38,
           animation: 'lp-scale-in 1.3s cubic-bezier(0.22,1,0.36,1) 0.1s both',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18,
         }}>
           <Logo3D />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <div style={{
+              fontSize: 17, fontWeight: 900, letterSpacing: '0.22em',
+              color: '#ffffff', textTransform: 'uppercase',
+              textShadow: '0 0 28px rgba(230,100,20,0.55)',
+            }}>
+              THAI SUMMIT GROUP
+            </div>
+            <div style={{
+              fontSize: 9, fontWeight: 600, letterSpacing: '0.32em',
+              color: 'rgba(255,255,255,0.42)', textTransform: 'uppercase',
+            }}>
+              Excellence in Manufacturing
+            </div>
+          </div>
         </div>
 
         {/* Eyebrow */}
@@ -405,7 +353,6 @@ export default function LandingPage() {
           </span>
         </div>
 
-        {/* Heading */}
         <h1 style={{
           position: 'relative', zIndex: 2, margin: '0 0 20px',
           fontSize: 'clamp(34px, 6.5vw, 68px)',
@@ -418,7 +365,6 @@ export default function LandingPage() {
           Thai Summit Group<br />KPI Dashboard
         </h1>
 
-        {/* Subtitle */}
         <p style={{
           position: 'relative', zIndex: 2, margin: '0 0 46px',
           fontSize: 'clamp(14px, 2vw, 18px)',
@@ -429,7 +375,6 @@ export default function LandingPage() {
           ครอบคลุมทุกแผนก · ตรวจสอบได้แบบเรียลไทม์
         </p>
 
-        {/* CTA row */}
         <div style={{
           position: 'relative', zIndex: 2,
           display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center',
@@ -456,7 +401,6 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* Scroll cue */}
         <div style={{
           position: 'absolute', bottom: 30, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
@@ -508,7 +452,6 @@ export default function LandingPage() {
               ตัวเลขที่บอกทุกอย่าง
             </h2>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: 16 }}>
             {STATS.map(({ num, tag, label, icon }, i) => (
               <div key={i} className="lp-stat-card" style={{
@@ -518,18 +461,9 @@ export default function LandingPage() {
                 boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
               }}>
                 <div style={{ fontSize: 30, marginBottom: 12 }}>{icon}</div>
-                <div style={{
-                  fontSize: 46, fontWeight: 900, lineHeight: 1,
-                  color: '#3dd65c', letterSpacing: '-1.5px',
-                }}>{num}</div>
-                <div style={{
-                  fontSize: 9.5, color: 'rgba(232,245,234,0.35)',
-                  letterSpacing: 2.8, marginTop: 6, textTransform: 'uppercase',
-                }}>{tag}</div>
-                <div style={{
-                  fontSize: 13, color: 'rgba(232,245,234,0.62)',
-                  marginTop: 10, lineHeight: 1.45,
-                }}>{label}</div>
+                <div style={{ fontSize: 46, fontWeight: 900, lineHeight: 1, color: '#3dd65c', letterSpacing: '-1.5px' }}>{num}</div>
+                <div style={{ fontSize: 9.5, color: 'rgba(232,245,234,0.35)', letterSpacing: 2.8, marginTop: 6, textTransform: 'uppercase' }}>{tag}</div>
+                <div style={{ fontSize: 13, color: 'rgba(232,245,234,0.62)', marginTop: 10, lineHeight: 1.45 }}>{label}</div>
               </div>
             ))}
           </div>
@@ -538,8 +472,7 @@ export default function LandingPage() {
 
       {/* ══ FEATURES ══════════════════════════════════════════════════════════ */}
       <section id="lp-features" style={{
-        padding: '82px 24px',
-        background: '#071409',
+        padding: '82px 24px', background: '#071409',
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{ maxWidth: 940, margin: '0 auto' }}>
@@ -553,18 +486,12 @@ export default function LandingPage() {
               fontSize: 'clamp(24px, 4vw, 44px)', fontWeight: 800, margin: 0,
               background: 'linear-gradient(135deg, #e8f5ea 0%, #3dd65c 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>
-              ครบทุกมิติของ KPI
-            </h2>
-            <p style={{
-              color: 'rgba(232,245,234,0.46)', marginTop: 16,
-              fontSize: 14, lineHeight: 1.82, maxWidth: 480, margin: '16px auto 0',
-            }}>
+            }}>ครบทุกมิติของ KPI</h2>
+            <p style={{ color: 'rgba(232,245,234,0.46)', fontSize: 14, lineHeight: 1.82, maxWidth: 480, margin: '16px auto 0' }}>
               ออกแบบมาเพื่อการบริหารจัดการผลการดำเนินงาน<br />
               ระดับโรงงานอุตสาหกรรมยานยนต์
             </p>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))', gap: 22 }}>
             {FEATURES.map(({ icon, title, titleTH, desc }, i) => (
               <div key={i} className="lp-feat-card" style={{
@@ -576,22 +503,12 @@ export default function LandingPage() {
                 <div style={{
                   width: 56, height: 56, borderRadius: 16, fontSize: 24,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(61,214,92,0.08)',
-                  border: '1px solid rgba(61,214,92,0.18)',
+                  background: 'rgba(61,214,92,0.08)', border: '1px solid rgba(61,214,92,0.18)',
                   marginBottom: 24,
                 }}>{icon}</div>
-                <div style={{
-                  fontSize: 16.5, fontWeight: 700, color: '#e8f5ea',
-                  marginBottom: 5, lineHeight: 1.3,
-                }}>{title}</div>
-                <div style={{
-                  fontSize: 12, color: '#3dd65c', fontWeight: 600,
-                  marginBottom: 15, letterSpacing: '0.02em',
-                }}>{titleTH}</div>
-                <p style={{
-                  fontSize: 13.5, color: 'rgba(232,245,234,0.50)',
-                  lineHeight: 1.78, margin: 0,
-                }}>{desc}</p>
+                <div style={{ fontSize: 16.5, fontWeight: 700, color: '#e8f5ea', marginBottom: 5, lineHeight: 1.3 }}>{title}</div>
+                <div style={{ fontSize: 12, color: '#3dd65c', fontWeight: 600, marginBottom: 15, letterSpacing: '0.02em' }}>{titleTH}</div>
+                <p style={{ fontSize: 13.5, color: 'rgba(232,245,234,0.50)', lineHeight: 1.78, margin: 0 }}>{desc}</p>
               </div>
             ))}
           </div>
@@ -606,36 +523,29 @@ export default function LandingPage() {
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{ maxWidth: 540, margin: '0 auto' }}>
-          {/* Mini emblem */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
             <div style={{
-              width: 72, height: 72, borderRadius: '50%',
-              border: '2px solid rgba(212,175,55,0.36)',
-              background: 'rgba(13,61,20,0.44)',
+              width: 72, height: 72, borderRadius: 14,
+              background: 'linear-gradient(138deg, #f57c28, #c84010)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 40px rgba(212,175,55,0.10), 0 0 0 8px rgba(212,175,55,0.04)',
+              boxShadow: '0 0 40px rgba(230,100,20,0.30), 0 0 0 8px rgba(230,100,20,0.08)',
             }}>
-              <svg viewBox="0 0 48 48" width="40" height="40">
-                <polygon points="24,5 40,43 8,43" fill="rgba(255,255,255,0.05)" />
-                <polygon points="24,5 30,22 18,22" fill="rgba(255,255,255,0.35)" />
-                <polygon points="12,43 24,18 36,43" fill="#1a7a35" />
-                <text x="24" y="47" textAnchor="middle" fontSize="9" fontWeight="900"
-                  letterSpacing="1.5" fill="#d4af37" fontFamily="Inter,sans-serif">TSG</text>
+              <svg viewBox="0 0 100 100" width="52" height="52">
+                <rect x="7" y="7" width="86" height="20" rx="2" fill="#fff" />
+                <rect x="7" y="7" width="20" height="86" rx="2" fill="#fff" />
+                <rect x="74" y="7"  width="19" height="42" rx="2" fill="#fff" />
+                <rect x="40" y="40" width="53" height="20" rx="2" fill="#fff" />
+                <rect x="40" y="40" width="19" height="53" rx="2" fill="#fff" />
+                <rect x="40" y="74" width="53" height="19" rx="2" fill="#fff" />
               </svg>
             </div>
           </div>
-
           <h2 style={{
             fontSize: 'clamp(22px, 4vw, 40px)', fontWeight: 800, marginBottom: 16,
             background: 'linear-gradient(135deg, #e8f5ea, #3dd65c)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>
-            พร้อมเริ่มต้นแล้วหรือยัง?
-          </h2>
-          <p style={{
-            color: 'rgba(232,245,234,0.46)', fontSize: 14.5,
-            lineHeight: 1.88, marginBottom: 40,
-          }}>
+          }}>พร้อมเริ่มต้นแล้วหรือยัง?</h2>
+          <p style={{ color: 'rgba(232,245,234,0.46)', fontSize: 14.5, lineHeight: 1.88, marginBottom: 40 }}>
             เข้าสู่ระบบเพื่อดูภาพรวม KPI ล่าสุด<br />
             พร้อมข้อมูลเชิงลึกสำหรับการตัดสินใจอย่างแม่นยำ
           </p>
@@ -644,16 +554,10 @@ export default function LandingPage() {
             background: 'linear-gradient(138deg, #1a7a35 0%, #3dd65c 100%)',
             color: '#fff', fontSize: 16, fontWeight: 700, letterSpacing: '0.04em',
             boxShadow: '0 10px 48px rgba(61,214,92,0.34), 0 2px 8px rgba(0,0,0,0.42)',
-          }}>
-            เข้าสู่ระบบ →
-          </button>
-
-          {/* Trust badges */}
+          }}>เข้าสู่ระบบ →</button>
           <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
             {['🔒 Secure Login', '⚡ Real-time Data', '📱 Responsive'].map((t, i) => (
-              <span key={i} style={{
-                fontSize: 11, color: 'rgba(232,245,234,0.34)', fontWeight: 500, letterSpacing: '0.02em',
-              }}>{t}</span>
+              <span key={i} style={{ fontSize: 11, color: 'rgba(232,245,234,0.34)', fontWeight: 500, letterSpacing: '0.02em' }}>{t}</span>
             ))}
           </div>
         </div>
@@ -661,21 +565,29 @@ export default function LandingPage() {
 
       {/* ══ FOOTER ════════════════════════════════════════════════════════════ */}
       <footer style={{
-        padding: '22px 28px',
-        background: '#040c05',
+        padding: '22px 28px', background: '#040c05',
         borderTop: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 5, background: '#e87c1e' }} />
-          <span style={{ fontSize: 12, fontWeight: 800, color: '#3dd65c', letterSpacing: '0.10em' }}>
-            THAI SUMMIT GROUP
-          </span>
+          <div style={{
+            width: 26, height: 26, borderRadius: 6,
+            background: 'linear-gradient(138deg, #f57c28, #c84010)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg viewBox="0 0 100 100" width="18" height="18">
+              <rect x="7" y="7" width="86" height="20" rx="2" fill="#fff" />
+              <rect x="7" y="7" width="20" height="86" rx="2" fill="#fff" />
+              <rect x="74" y="7"  width="19" height="42" rx="2" fill="#fff" />
+              <rect x="40" y="40" width="53" height="20" rx="2" fill="#fff" />
+              <rect x="40" y="40" width="19" height="53" rx="2" fill="#fff" />
+              <rect x="40" y="74" width="53" height="19" rx="2" fill="#fff" />
+            </svg>
+          </div>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#3dd65c', letterSpacing: '0.10em' }}>THAI SUMMIT GROUP</span>
         </div>
-        <span style={{
-          fontSize: 11, color: 'rgba(232,245,234,0.26)', letterSpacing: '0.04em',
-        }}>
+        <span style={{ fontSize: 11, color: 'rgba(232,245,234,0.26)', letterSpacing: '0.04em' }}>
           KPI Performance Intelligence Platform
         </span>
       </footer>
