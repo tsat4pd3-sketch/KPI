@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import tsLogo from '../components/TS logo.png';
 
-// ─── CSS keyframes + utility classes ─────────────────────────────────────────
+// ─── CSS keyframes + utility classes ─────────────────────────────────────────────
 const LANDING_CSS = `
   @keyframes tsg-sway {
     0%, 100% { transform: rotateY(-20deg) rotateX(7deg);  }
@@ -67,7 +67,7 @@ const LANDING_CSS = `
   }
 `;
 
-// ─── Animated particle canvas ─────────────────────────────────────────────────
+// ─── Animated particle canvas ─────────────────────────────────────────────
 function Particles() {
   const ref = useRef(null);
 
@@ -145,7 +145,7 @@ function Particles() {
   );
 }
 
-// ─── Logo face — uses real TS logo PNG ───────────────────────────────────────
+// ─── Logo face — uses real TS logo PNG ──────────────────────────────────────────
 function LogoFace({ lit }) {
   return (
     <div style={{
@@ -164,7 +164,7 @@ function LogoFace({ lit }) {
   );
 }
 
-// ─── 3D stacked logo ──────────────────────────────────────────────────────────
+// ─── 3D stacked logo ──────────────────────────────────────────────────
 const EXTRUDE = 22;
 
 function Logo3D() {
@@ -233,7 +233,7 @@ function Logo3D() {
   );
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Data ──────────────────────────────────────────────────────────────────────────────────
 const STATS = [
   { num: '35+', tag: 'ปี',     label: 'ประสบการณ์',   icon: '🏆' },
   { num: '3',   tag: 'Plants', label: 'โรงงานผลิต',    icon: '🏭' },
@@ -256,7 +256,7 @@ const FEATURES = [
   },
 ];
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page ───────────────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   const navigate = useNavigate();
 
@@ -268,13 +268,14 @@ export default function LandingPage() {
     }}>
       <style>{LANDING_CSS}</style>
 
-      {/* ══ HERO ══════════════════════════════════════════════════════════════ */}
+      {/* ══ HERO ═══════════════════════════════════════════════════════════════════ */}
       <section style={{
         position: 'relative', minHeight: '100vh',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         padding: '60px 24px 110px', textAlign: 'center', overflow: 'hidden',
       }}>
+        {/* Perspective grid */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           backgroundImage: `
@@ -283,6 +284,7 @@ export default function LandingPage() {
           backgroundSize: '64px 64px',
           animation: 'lp-grid-in 3s ease both',
         }} />
+        {/* Radial vignette */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(ellipse 72% 56% at 50% 46%, rgba(13,61,20,0.30), transparent 76%)',
@@ -341,6 +343,7 @@ export default function LandingPage() {
           </span>
         </div>
 
+        {/* Heading */}
         <h1 style={{
           position: 'relative', zIndex: 2, margin: '0 0 20px',
           fontSize: 'clamp(34px, 6.5vw, 68px)',
@@ -353,6 +356,7 @@ export default function LandingPage() {
           Thai Summit Group<br />KPI Dashboard
         </h1>
 
+        {/* Subtitle */}
         <p style={{
           position: 'relative', zIndex: 2, margin: '0 0 46px',
           fontSize: 'clamp(14px, 2vw, 18px)',
@@ -363,6 +367,7 @@ export default function LandingPage() {
           ครอบคลุมทุกแผนก · ตรวจสอบได้แบบเรียลไทม์
         </p>
 
+        {/* CTA row */}
         <div style={{
           position: 'relative', zIndex: 2,
           display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center',
@@ -389,6 +394,7 @@ export default function LandingPage() {
           </button>
         </div>
 
+        {/* Scroll cue */}
         <div style={{
           position: 'absolute', bottom: 30, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
@@ -404,7 +410,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══ DIVIDER STRIP ═════════════════════════════════════════════════════ */}
+      {/* ══ DIVIDER STRIP ═════════════════════════════════════════════════════════════════ */}
       <div style={{
         padding: '0 28px',
         background: 'linear-gradient(90deg, transparent, rgba(61,214,92,0.08) 40%, rgba(61,214,92,0.08) 60%, transparent)',
@@ -420,36 +426,60 @@ export default function LandingPage() {
         ))}
       </div>
 
-      {/* ══ STATS ═════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '72px 24px', background: 'linear-gradient(180deg, #050e06 0%, #071409 100%)' }}>
+      {/* ══ STATS ═════════════════════════════════════════════════════════════════════════ */}
+      <section style={{
+        padding: '72px 24px',
+        background: 'linear-gradient(180deg, #050e06 0%, #071409 100%)',
+      }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 4.5, color: '#3dd65c', marginBottom: 12, textTransform: 'uppercase' }}>
+            <div style={{
+              fontSize: 9.5, fontWeight: 800, letterSpacing: 4.5,
+              color: '#3dd65c', marginBottom: 12, textTransform: 'uppercase',
+            }}>
               THAI SUMMIT AT A GLANCE
             </div>
-            <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 38px)', fontWeight: 800, margin: 0, color: '#e8f5ea' }}>
+            <h2 style={{
+              fontSize: 'clamp(22px, 3.5vw, 38px)', fontWeight: 800,
+              margin: 0, color: '#e8f5ea',
+            }}>
               ตัวเลขที่บอกทุกอย่าง
             </h2>
           </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: 16 }}>
             {STATS.map(({ num, tag, label, icon }, i) => (
               <div key={i} className="lp-stat-card" style={{
                 padding: '32px 20px', borderRadius: 20, textAlign: 'center',
-                background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.068)',
+                background: 'rgba(255,255,255,0.025)',
+                border: '1px solid rgba(255,255,255,0.068)',
                 boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
               }}>
                 <div style={{ fontSize: 30, marginBottom: 12 }}>{icon}</div>
-                <div style={{ fontSize: 46, fontWeight: 900, lineHeight: 1, color: '#3dd65c', letterSpacing: '-1.5px' }}>{num}</div>
-                <div style={{ fontSize: 9.5, color: 'rgba(232,245,234,0.35)', letterSpacing: 2.8, marginTop: 6, textTransform: 'uppercase' }}>{tag}</div>
-                <div style={{ fontSize: 13, color: 'rgba(232,245,234,0.62)', marginTop: 10, lineHeight: 1.45 }}>{label}</div>
+                <div style={{
+                  fontSize: 46, fontWeight: 900, lineHeight: 1,
+                  color: '#3dd65c', letterSpacing: '-1.5px',
+                }}>{num}</div>
+                <div style={{
+                  fontSize: 9.5, color: 'rgba(232,245,234,0.35)',
+                  letterSpacing: 2.8, marginTop: 6, textTransform: 'uppercase',
+                }}>{tag}</div>
+                <div style={{
+                  fontSize: 13, color: 'rgba(232,245,234,0.62)',
+                  marginTop: 10, lineHeight: 1.45,
+                }}>{label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══ FEATURES ══════════════════════════════════════════════════════════ */}
-      <section id="lp-features" style={{ padding: '82px 24px', background: '#071409', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      {/* ══ FEATURES ═══════════════════════════════════════════════════════════════════════ */}
+      <section id="lp-features" style={{
+        padding: '82px 24px',
+        background: '#071409',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+      }}>
         <div style={{ maxWidth: 940, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 58 }}>
             <div style={{
@@ -461,40 +491,60 @@ export default function LandingPage() {
               fontSize: 'clamp(24px, 4vw, 44px)', fontWeight: 800, margin: 0,
               background: 'linear-gradient(135deg, #e8f5ea 0%, #3dd65c 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>ครบทุกมิติของ KPI</h2>
-            <p style={{ color: 'rgba(232,245,234,0.46)', fontSize: 14, lineHeight: 1.82, maxWidth: 480, margin: '16px auto 0' }}>
+            }}>
+              ครบทุกมิติของ KPI
+            </h2>
+            <p style={{
+              color: 'rgba(232,245,234,0.46)', marginTop: 16,
+              fontSize: 14, lineHeight: 1.82, maxWidth: 480, margin: '16px auto 0',
+            }}>
               ออกแบบมาเพื่อการบริหารจัดการผลการดำเนินงาน<br />
               ระดับโรงงานอุตสาหกรรมยานยนต์
             </p>
           </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))', gap: 22 }}>
             {FEATURES.map(({ icon, title, titleTH, desc }, i) => (
               <div key={i} className="lp-feat-card" style={{
                 padding: '36px 30px', borderRadius: 24,
-                background: 'rgba(255,255,255,0.020)', border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.020)',
+                border: '1px solid rgba(255,255,255,0.06)',
                 boxShadow: '0 4px 28px rgba(0,0,0,0.20)',
               }}>
                 <div style={{
                   width: 56, height: 56, borderRadius: 16, fontSize: 24,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(61,214,92,0.08)', border: '1px solid rgba(61,214,92,0.18)',
+                  background: 'rgba(61,214,92,0.08)',
+                  border: '1px solid rgba(61,214,92,0.18)',
                   marginBottom: 24,
                 }}>{icon}</div>
-                <div style={{ fontSize: 16.5, fontWeight: 700, color: '#e8f5ea', marginBottom: 5, lineHeight: 1.3 }}>{title}</div>
-                <div style={{ fontSize: 12, color: '#3dd65c', fontWeight: 600, marginBottom: 15, letterSpacing: '0.02em' }}>{titleTH}</div>
-                <p style={{ fontSize: 13.5, color: 'rgba(232,245,234,0.50)', lineHeight: 1.78, margin: 0 }}>{desc}</p>
+                <div style={{
+                  fontSize: 16.5, fontWeight: 700, color: '#e8f5ea',
+                  marginBottom: 5, lineHeight: 1.3,
+                }}>{title}</div>
+                <div style={{
+                  fontSize: 12, color: '#3dd65c', fontWeight: 600,
+                  marginBottom: 15, letterSpacing: '0.02em',
+                }}>{titleTH}</div>
+                <p style={{
+                  fontSize: 13.5, color: 'rgba(232,245,234,0.50)',
+                  lineHeight: 1.78, margin: 0,
+                }}>{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══ CTA ═══════════════════════════════════════════════════════════════ */}
+      {/* ══ CTA ═══════════════════════════════════════════════════════════════════════════ */}
       <section style={{
-        padding: '90px 24px', background: 'linear-gradient(180deg, #071409, #050e06)',
-        textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)',
+        padding: '90px 24px',
+        background: 'linear-gradient(180deg, #071409, #050e06)',
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{ maxWidth: 540, margin: '0 auto' }}>
+          {/* Mini emblem — real PNG logo */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
             <div style={{
               width: 72, height: 72, borderRadius: 14, overflow: 'hidden',
@@ -503,12 +553,18 @@ export default function LandingPage() {
               <img src={tsLogo} alt="Thai Summit Group" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             </div>
           </div>
+
           <h2 style={{
             fontSize: 'clamp(22px, 4vw, 40px)', fontWeight: 800, marginBottom: 16,
             background: 'linear-gradient(135deg, #e8f5ea, #3dd65c)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>พร้อมเริ่มต้นแล้วหรือยัง?</h2>
-          <p style={{ color: 'rgba(232,245,234,0.46)', fontSize: 14.5, lineHeight: 1.88, marginBottom: 40 }}>
+          }}>
+            พร้อมเริ่มต้นแล้วหรือยัง?
+          </h2>
+          <p style={{
+            color: 'rgba(232,245,234,0.46)', fontSize: 14.5,
+            lineHeight: 1.88, marginBottom: 40,
+          }}>
             เข้าสู่ระบบเพื่อดูภาพรวม KPI ล่าสุด<br />
             พร้อมข้อมูลเชิงลึกสำหรับการตัดสินใจอย่างแม่นยำ
           </p>
@@ -517,29 +573,41 @@ export default function LandingPage() {
             background: 'linear-gradient(138deg, #1a7a35 0%, #3dd65c 100%)',
             color: '#fff', fontSize: 16, fontWeight: 700, letterSpacing: '0.04em',
             boxShadow: '0 10px 48px rgba(61,214,92,0.34), 0 2px 8px rgba(0,0,0,0.42)',
-          }}>เข้าสู่ระบบ →</button>
+          }}>
+            เข้าสู่ระบบ →
+          </button>
+
+          {/* Trust badges */}
           <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
             {['🔒 Secure Login', '⚡ Real-time Data', '📱 Responsive'].map((t, i) => (
-              <span key={i} style={{ fontSize: 11, color: 'rgba(232,245,234,0.34)', fontWeight: 500, letterSpacing: '0.02em' }}>{t}</span>
+              <span key={i} style={{
+                fontSize: 11, color: 'rgba(232,245,234,0.34)', fontWeight: 500, letterSpacing: '0.02em',
+              }}>{t}</span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══ FOOTER ════════════════════════════════════════════════════════════ */}
+      {/* ══ FOOTER ═════════════════════════════════════════════════════════════════════════════ */}
       <footer style={{
-        padding: '22px 28px', background: '#040c05',
+        padding: '22px 28px',
+        background: '#040c05',
         borderTop: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Footer logo mark — real PNG */}
           <div style={{ width: 26, height: 26, borderRadius: 6, overflow: 'hidden' }}>
             <img src={tsLogo} alt="TSG" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
           </div>
-          <span style={{ fontSize: 12, fontWeight: 800, color: '#3dd65c', letterSpacing: '0.10em' }}>THAI SUMMIT GROUP</span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#3dd65c', letterSpacing: '0.10em' }}>
+            THAI SUMMIT GROUP
+          </span>
         </div>
-        <span style={{ fontSize: 11, color: 'rgba(232,245,234,0.26)', letterSpacing: '0.04em' }}>
+        <span style={{
+          fontSize: 11, color: 'rgba(232,245,234,0.26)', letterSpacing: '0.04em',
+        }}>
           KPI Performance Intelligence Platform
         </span>
       </footer>
