@@ -1,7 +1,9 @@
-import { GSHEET_OEE_URL, OEE_LINES } from '../config';
+import { GSHEET_OEE_URL, GSHEET_OEE_PD4_URL, OEE_LINES } from '../config';
 
-let _rows = null;
-let _ts = 0;
+let _rowsPD3 = null;
+let _rowsPD4 = null;
+let _tsPD3 = 0;
+let _tsPD4 = 0;
 const TTL = 30 * 60 * 1000;
 
 function parseCSVLine(line) {
@@ -16,18 +18,7 @@ function parseCSVLine(line) {
   return result;
 }
 
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = parseCSVLine(lines[0]);
-  return lines.slice(1).filter(l => l.trim()).map(line => {
-    const vals = parseCSVLine(line);
-    const obj = {};
-    headers.forEach((h, i) => { obj[h] = vals[i] ?? ''; });
-    return obj;
-  });
-}
-
-function parseDate(val) {
+function parseThaiDate(val) {
   if (!val) return null;
   const m = val.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
   if (!m) return null;
@@ -36,46 +27,83 @@ function parseDate(val) {
   return { year: y, month: +m[2] };
 }
 
+function toOEEPct(v) {
+  return v <= 1 ? +(v * 100).toFixed(2) : +v.toFixed(2);
+}
+
+async function getRowsPD3() {
+  const now = Date.now();
+  if (_rowsPD3 && now - _tsPD3 < TTL) return _rowsPD3;
+  const res = await fetch(GSHEET_OEE_URL + '&t=' + now);
+  if (!res.ok) throw new Error('ไม่สามารถดึงข้อมูล OEE PD3 ได้ กรุณาตรวจสอบ Publish to web ใน Google Sheet');
+  const text = await res.text();
+  const lines = text.trim().split('\n');
+  const headers = parseCSVLine(lines[0]);
+  _rowsPD3 = lines.slice(1).filter(l => l.trim()).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = vals[i] ?? ''; });
+    return obj;
+  });
+  _tsPD3 = now;
+  return _rowsPD3;
+}
+
+async function getRowsPD4() {
+  const now = Date.now();
+  if (_rowsPD4 && now - _tsPD4 < TTL) return _rowsPD4;
+  const res = await fetch(GSHEET_OEE_PD4_URL + '&t=' + now);
+  if (!res.ok) throw new Error('ไม่สามารถดึงข้อมูล OEE PD4 ได้ กรุณาตรวจสอบ Publish to web ใน Google Sheet');
+  const text = await res.text();
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  // Skip header row; return raw column arrays for index-based parsing
+  _rowsPD4 = lines.slice(1).map(l => parseCSVLine(l));
+  _tsPD4 = now;
+  return _rowsPD4;
+}
+
 function lineBelongsTo(lineName, section) {
   const upper = (lineName || '').toUpperCase();
   return (OEE_LINES[section] || []).some(l => upper.includes(l.toUpperCase()));
 }
 
-async function getRows() {
-  const now = Date.now();
-  if (_rows && now - _ts < TTL) return _rows;
-  const res = await fetch(GSHEET_OEE_URL);
-  if (!res.ok) throw new Error('ไม่สามารถดึงข้อมูล OEE ได้ กรุณาตรวจสอบ Publish to web ใน Google Sheet');
-  _rows = parseCSV(await res.text());
-  _ts = now;
-  return _rows;
-}
-
 export async function getOEEByYear(year) {
-  const rows = await getRows();
+  const [rowsPD3, rowsPD4] = await Promise.all([getRowsPD3(), getRowsPD4()]);
+
   const b = {};
   for (let m = 1; m <= 12; m++) {
     b[m] = { oees_pd3: [], defs_pd3: [], oees_pd4: [], defs_pd4: [] };
   }
 
-  rows.forEach(r => {
-    const d = parseDate(r['วันที่ที่ผลิตงาน']);
+  rowsPD3.forEach(r => {
+    const d = parseThaiDate(r['วันที่ที่ผลิตงาน']);
     if (!d || d.year !== year) return;
     const line = r['เลือกไลน์การผลิต'] || '';
+    if (!lineBelongsTo(line, 'PD3')) return;
     const oee = parseFloat(r['OEE']);
     const def = parseFloat(r['Defect']);
-    const isPD3 = lineBelongsTo(line, 'PD3');
-    const isPD4 = lineBelongsTo(line, 'PD4');
-    const toOEE = v => (v <= 1 ? +(v * 100).toFixed(2) : +v.toFixed(2));
+    if (!isNaN(oee) && oee > 0) b[d.month].oees_pd3.push(toOEEPct(oee));
+    if (!isNaN(def) && def >= 0) b[d.month].defs_pd3.push(+def.toFixed(2));
+  });
 
-    if (isPD3) {
-      if (!isNaN(oee) && oee > 0) b[d.month].oees_pd3.push(toOEE(oee));
-      if (!isNaN(def) && def >= 0) b[d.month].defs_pd3.push(+def.toFixed(2));
+  // PD4 uses column-index-based parsing (mirrors overview.html parsePD4)
+  rowsPD4.forEach(row => {
+    const part = (row[1] || '').toUpperCase();
+    if (!['GOR', 'LWRBAR', 'LWR BAR'].some(p => part.includes(p))) return;
+    const d = parseThaiDate(row[59] || row[0] || '');
+    if (!d || d.year !== year) return;
+    const oee = parseFloat(row[83]);
+    // Defect: 3 possible defect slots, each with flag@7+i*4, type@8+i*4, qty@9+i*4
+    let def = 0;
+    for (let i = 0; i < 3; i++) {
+      const flag = (row[7 + i * 4] || '').toUpperCase();
+      if (flag === 'TRUE' || flag === '1') {
+        const qty = parseFloat(row[9 + i * 4]);
+        if (!isNaN(qty) && qty > 0) def += qty;
+      }
     }
-    if (isPD4) {
-      if (!isNaN(oee) && oee > 0) b[d.month].oees_pd4.push(toOEE(oee));
-      if (!isNaN(def) && def >= 0) b[d.month].defs_pd4.push(+def.toFixed(2));
-    }
+    if (!isNaN(oee) && oee > 0) b[d.month].oees_pd4.push(toOEEPct(oee));
+    b[d.month].defs_pd4.push(+def.toFixed(2));
   });
 
   const avg = arr => arr.length ? +(arr.reduce((a, c) => a + c, 0) / arr.length).toFixed(2) : null;

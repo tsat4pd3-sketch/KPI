@@ -1,6 +1,9 @@
 export const GSHEET_OEE_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vToehKwHXa32rnaE008gbSZ795A_2tpe4mgEsPECNX9-o5gv7aFfNWBZnxoVdvrqmylqv7bjg26PXHY/pub?gid=2011515171&single=true&output=csv';
 
+export const GSHEET_OEE_PD4_URL =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSs034o0M970g62tL1jkU4CU6HpAbVkER87uw3OzI97ueA6xXdBdwXd1Gcd0GrgaKOuIrTl-F75q3nz/pub?gid=122174819&single=true&output=csv';
+
 export const CATEGORY_META = {
   financial: { label: 'Financial',        labelTH: 'การเงิน',      icon: '💰', color: '#4d9fff' },
   customer:  { label: 'Customer',         labelTH: 'ลูกค้า',        icon: '⭐', color: '#22c55e' },
