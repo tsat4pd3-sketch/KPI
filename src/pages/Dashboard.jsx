@@ -13,7 +13,8 @@ const KPI_GROUPS = [
   { label: 'Direct Labour %',         cat: 'financial', nos: ['1.1', '1.3', '1.5'] },
   { label: 'Overhead %',              cat: 'financial', nos: ['1.2', '1.4', '1.6'] },
   { label: 'Customer Satisfaction',   cat: 'customer',  nos: ['2.1'] },
-  { label: '100P & Customer Returns', cat: 'internal',  nos: ['3.1a', '3.1b', '3.1c'] },
+  { label: '100P & Customer Returns', cat: 'internal',  nos: ['3.1', '3.1a', '3.1b', '3.1c'] },
+
   { label: 'Inventory Balance',       cat: 'internal',  nos: ['3.2', '3.3'] },
   { label: 'Internal Defect (PPM)',   cat: 'internal',  nos: ['3.4', '3.5'] },
   { label: 'OEE',                     cat: 'internal',  nos: ['3.6', '3.7'] },
