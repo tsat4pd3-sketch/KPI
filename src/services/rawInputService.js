@@ -144,6 +144,11 @@ export function computeActuals(raw, items, allRaws, month) {
     const csId = findId('2.1');
     if (csId && raw.cust_sat_q != null && raw.cust_sat_d != null)
       res[csId] = (raw.cust_sat_q + raw.cust_sat_d) / 2;
+
+    // ALL section: Factory-wide 100P
+    const p100FacId = findId('3.1');
+    if (p100FacId && raw.p100_amount_factory != null && (raw.sales_total || 0) > 0)
+      res[p100FacId] = raw.p100_amount_factory / raw.sales_total * 100;
   }
 
   return res;
@@ -200,6 +205,18 @@ export function buildDrillDown(item, raw, allRaws) {
       ],
       formula: raw.cust_sat_q != null && raw.cust_sat_d != null
         ? `Average = (${raw.cust_sat_q} + ${raw.cust_sat_d}) / 2 = ${((raw.cust_sat_q + raw.cust_sat_d) / 2).toFixed(2)}%`
+        : null,
+    };
+  }
+  if (no === '3.1') {
+    return {
+      title: '100P & Customer Returns — Factory Total',
+      rows: [
+        ['100P+CR Factory Amount', fmtB(raw.p100_amount_factory)],
+        ['Factory Total Sales', fmtB(raw.sales_total)],
+      ],
+      formula: (raw.sales_total || 0) > 0 && raw.p100_amount_factory != null
+        ? `100P% = ${fmtB(raw.p100_amount_factory)} / ${fmtB(raw.sales_total)} × 100 = ${(raw.p100_amount_factory / raw.sales_total * 100).toFixed(4)}%`
         : null,
     };
   }
