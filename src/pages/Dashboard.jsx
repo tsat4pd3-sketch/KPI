@@ -1,29 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../App';
 import { CATEGORY_META, SECTIONS, SECTION_COLORS, calcAchievement, achievementColor, formatValue } from '../config';
 import { getKPIItems, getTargets, getActuals, buildMaps, getItemYTD } from '../services/kpiService';
 import { getOEEByYear } from '../services/oeeService';
+import { getRawInputs, buildDrillDown } from '../services/rawInputService';
 import GaugeRing from '../components/GaugeRing';
 
 const CATS = ['financial', 'customer', 'internal', 'growth'];
 
-// Groups of equivalent KPIs across sections — for the ALL rollup view
 const KPI_GROUPS = [
+  { label: 'Raw Material Control',    cat: 'financial', nos: ['1.0a', '1.0b'] },
   { label: 'Direct Labour %',         cat: 'financial', nos: ['1.1', '1.3', '1.5'] },
   { label: 'Overhead %',              cat: 'financial', nos: ['1.2', '1.4', '1.6'] },
   { label: 'Customer Satisfaction',   cat: 'customer',  nos: ['2.1'] },
+  { label: 'MO Closed on Target',     cat: 'customer',  nos: ['2.2c'] },
   { label: '100P & Customer Returns', cat: 'internal',  nos: ['3.1', '3.1a', '3.1b', '3.1c'] },
-
-  { label: 'Inventory Balance',       cat: 'internal',  nos: ['3.2', '3.3'] },
+  { label: 'Inventory Balance (DSI)', cat: 'internal',  nos: ['3.2', '3.3'] },
   { label: 'Internal Defect (PPM)',   cat: 'internal',  nos: ['3.4', '3.5'] },
   { label: 'OEE',                     cat: 'internal',  nos: ['3.6', '3.7'] },
+  { label: 'Machine Break Down',      cat: 'internal',  nos: ['3.2c'] },
   { label: 'MTBF',                    cat: 'internal',  nos: ['3.8'] },
   { label: 'MTTR',                    cat: 'internal',  nos: ['3.9'] },
   { label: 'PM',                      cat: 'internal',  nos: ['4.0'] },
-  { label: 'Safety Accidents',        cat: 'growth',    nos: ['4.1a', '4.1b', '4.1c'] },
+  { label: 'Cost Reduction JIG',      cat: 'internal',  nos: ['3.5c'] },
+  { label: 'Non NC Major (ISO)',       cat: 'internal',  nos: ['3.6a', '3.6b', '3.6c'] },
+  { label: 'Safety Accidents',        cat: 'internal',  nos: ['4.1a', '4.1b', '4.1c'] },
   { label: 'Sales per Head',          cat: 'growth',    nos: ['4.2a', '4.2b', '4.2c'] },
   { label: 'TS Academy',              cat: 'growth',    nos: ['4.3a', '4.3b', '4.3c'] },
+  { label: 'QCC',                     cat: 'growth',    nos: ['4.3a2', '4.3b2', '4.3c2'] },
+  { label: 'Engineering Day',         cat: 'growth',    nos: ['4.4a', '4.4b', '4.4c'] },
 ];
 
 function StatCard({ icon, label, value, sub, color, bgColor }) {
@@ -46,49 +52,102 @@ function StatCard({ icon, label, value, sub, color, bgColor }) {
   );
 }
 
+function DrillDownPanel({ data }) {
+  const { title, rows, formula } = data;
+  return (
+    <div style={{
+      padding: '10px 20px 12px 36px',
+      background: 'var(--bg2)',
+      borderTop: '1px dashed var(--border)',
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text2)', marginBottom: 8 }}>
+        🔍 {title}
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 24px', marginBottom: formula ? 8 : 0 }}>
+        {rows.map(([label, value], i) =>
+          label === '—'
+            ? <div key={i} style={{ width: '100%', height: 1, background: 'var(--border2)', margin: '3px 0' }} />
+            : (
+              <div key={i} style={{ fontSize: 11, display: 'flex', gap: 6, alignItems: 'center' }}>
+                <span style={{ color: 'var(--muted)' }}>{label}:</span>
+                <span style={{ fontWeight: 600, fontFamily: 'var(--font-display)' }}>{value}</span>
+              </div>
+            )
+        )}
+      </div>
+      {formula && (
+        <div style={{
+          fontSize: 11, color: 'var(--accent)', fontFamily: 'monospace',
+          background: 'var(--bg3)', padding: '4px 10px', borderRadius: 6,
+        }}>
+          {formula}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { year } = useApp();
-  const navigate = useNavigate();
-  const [items, setItems]     = useState([]);
-  const [maps, setMaps]       = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [oeeError, setOeeError] = useState(null);
-  const [section, setSection] = useState('ALL');
+  const navigate  = useNavigate();
+  const [items, setItems]           = useState([]);
+  const [maps, setMaps]             = useState(null);
+  const [raws, setRaws]             = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [oeeError, setOeeError]     = useState(null);
+  const [section, setSection]       = useState('ALL');
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     setOeeError(null);
+    setExpandedId(null);
     Promise.all([
       getKPIItems(),
       getTargets(year),
       getActuals(year),
       getOEEByYear(year).catch(e => { setOeeError(e.message); return null; }),
-    ]).then(([allItems, targets, actuals, oeeData]) => {
+      getRawInputs(year),
+    ]).then(([allItems, targets, actuals, oeeData, rawInputs]) => {
       setItems(allItems);
       setMaps(buildMaps(allItems, targets, actuals, oeeData));
+      setRaws(rawInputs);
       setLoading(false);
     });
   }, [year]);
 
-  // For stat cards & category cards — always use full item list for overall summary
   const allItemsWithPct = items.map(item => {
     if (!maps) return { item, actual: null, target: null, pct: null };
     const { actual, target } = getItemYTD(item, maps.targetMap, maps.actualMap);
     return { item, actual, target, pct: calcAchievement(item, actual, target) };
   });
 
-  // For category cards — filter by section when not ALL
   const visibleItemsWithPct = section === 'ALL'
     ? allItemsWithPct
     : allItemsWithPct.filter(x => x.item.section === section || x.item.section === 'ALL');
 
-  const tracked  = allItemsWithPct.filter(x => x.pct != null);
-  const onTrack  = tracked.filter(x => x.pct >= 90).length;
-  const atRisk   = tracked.filter(x => x.pct >= 70 && x.pct < 90).length;
-  const below    = tracked.filter(x => x.pct < 70).length;
-  const avgPct   = tracked.length
+  const tracked = allItemsWithPct.filter(x => x.pct != null);
+  const onTrack = tracked.filter(x => x.pct >= 90).length;
+  const atRisk  = tracked.filter(x => x.pct >= 70 && x.pct < 90).length;
+  const below   = tracked.filter(x => x.pct < 70).length;
+  const avgPct  = tracked.length
     ? Math.round(tracked.reduce((s, x) => s + x.pct, 0) / tracked.length)
     : null;
+
+  // Get latest raw for a section (for drill-down)
+  const getLatestRaw = useCallback((sec) =>
+    raws.filter(r => r.section === sec).sort((a, b) => b.month - a.month)[0] ?? null
+  , [raws]);
+
+  const getDrillDown = useCallback((item) => {
+    const raw = getLatestRaw(item.section);
+    if (!raw) return null;
+    return buildDrillDown(item, raw, raws);
+  }, [getLatestRaw, raws]);
+
+  const toggleExpand = useCallback((itemId) =>
+    setExpandedId(prev => prev === itemId ? null : itemId)
+  , []);
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: 'var(--muted)' }}>
@@ -106,7 +165,7 @@ export default function Dashboard() {
         </div>
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
           {SECTIONS.map(s => (
-            <button key={s} onClick={() => setSection(s)} style={{
+            <button key={s} onClick={() => { setSection(s); setExpandedId(null); }} style={{
               padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700,
               border: `1px solid ${section === s ? SECTION_COLORS[s] : 'var(--border2)'}`,
               background: section === s ? `${SECTION_COLORS[s]}22` : 'var(--bg3)',
@@ -122,7 +181,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Stat Cards ── */}
+      {/* Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
         <StatCard icon="📊" label="Overall Achievement"
           color={avgPct != null ? achievementColor(avgPct) : 'var(--muted)'}
@@ -133,14 +192,13 @@ export default function Dashboard() {
         <StatCard icon="🔴" label="Below Target" color="var(--red)"   bgColor="var(--red-dim)"   value={below}  sub="Achievement < 70%" />
       </div>
 
-      {/* ── Category Cards ── */}
+      {/* Category Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14, marginBottom: 24 }}>
         {CATS.map(cat => {
-          const meta = CATEGORY_META[cat];
+          const meta     = CATEGORY_META[cat];
           const catItems = visibleItemsWithPct.filter(x => x.item.category === cat);
           const catPcts  = catItems.map(x => x.pct).filter(v => v != null);
           const avgCat   = catPcts.length ? catPcts.reduce((a, b) => a + b, 0) / catPcts.length : null;
-
           return (
             <div key={cat} className="card"
               onClick={() => navigate(`/category/${cat}`)}
@@ -171,7 +229,8 @@ export default function Dashboard() {
                         </div>
                         <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                           {actual != null && <span style={{ fontSize: 10, color: 'var(--muted)' }}>{formatValue(item, actual)}</span>}
-                          {pct != null ? <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)' }}>{Math.round(pct)}%</span>
+                          {pct != null
+                            ? <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)' }}>{Math.round(pct)}%</span>
                             : <span style={{ fontSize: 10, color: 'var(--muted)' }}>—</span>}
                         </div>
                       </div>
@@ -190,19 +249,20 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* ── KPI Table ── */}
+      {/* KPI Table */}
       <div className="card" style={{ overflowX: 'auto' }}>
         <div style={{ padding: '12px 18px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text2)' }}>
             {section === 'ALL' ? '📋 ภาพรวม KPI — เปรียบเทียบทุกแผนก' : `📋 KPI ของ ${section}`}
           </span>
           <span style={{ fontSize: 11, color: 'var(--muted)' }}>
-            {section === 'ALL' ? 'คลิกแถวเพื่อดูรายละเอียด' : `${visibleItemsWithPct.filter(x => x.item.section === section).length} รายการ`}
+            {section === 'ALL'
+              ? 'คลิกแถวเพื่อดูรายละเอียด'
+              : `คลิกแถวเพื่อดู drill-down · ${allItemsWithPct.filter(x => x.item.section === section).length} รายการ`}
           </span>
         </div>
 
         {section === 'ALL' ? (
-          /* ── ALL: Rollup view — one row per KPI type, breakdown by section ── */
           <table>
             <thead>
               <tr>
@@ -214,15 +274,12 @@ export default function Dashboard() {
             </thead>
             <tbody>
               {KPI_GROUPS.map(group => {
-                const meta = CATEGORY_META[group.cat];
-                // find items matching this group
+                const meta       = CATEGORY_META[group.cat];
                 const groupItems = allItemsWithPct.filter(x => group.nos.includes(x.item.kpi_no));
                 if (groupItems.length === 0) return null;
-
                 const groupPcts = groupItems.map(x => x.pct).filter(v => v != null);
                 const avgGrp    = groupPcts.length ? Math.round(groupPcts.reduce((a, b) => a + b, 0) / groupPcts.length) : null;
                 const avgClr    = achievementColor(avgGrp);
-
                 return (
                   <tr key={group.label}
                     style={{ cursor: 'pointer' }}
@@ -237,7 +294,6 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td>
-                      {/* Section breakdown badges */}
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                         {groupItems.map(({ item, actual, pct }) => {
                           const clr = achievementColor(pct);
@@ -249,10 +305,8 @@ export default function Dashboard() {
                                   ? <span style={{ fontSize: 12, fontWeight: 800, color: clr, fontFamily: 'var(--font-display)' }}>{Math.round(pct)}%</span>
                                   : <span style={{ fontSize: 11, color: 'var(--muted)' }}>—</span>}
                               </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <div style={{ width: 56, height: 4, background: 'var(--border2)', borderRadius: 2 }}>
-                                  <div style={{ height: '100%', width: `${pct ?? 0}%`, background: clr, borderRadius: 2 }} />
-                                </div>
+                              <div style={{ width: 56, height: 4, background: 'var(--border2)', borderRadius: 2 }}>
+                                <div style={{ height: '100%', width: `${pct ?? 0}%`, background: clr, borderRadius: 2 }} />
                               </div>
                               {actual != null && <span style={{ fontSize: 9, color: 'var(--muted)' }}>{formatValue(item, actual)}</span>}
                             </div>
@@ -278,7 +332,7 @@ export default function Dashboard() {
             </tbody>
           </table>
         ) : (
-          /* ── Section view: individual KPIs for the selected section ── */
+          /* Section view — expandable rows with drill-down */
           <table>
             <thead>
               <tr>
@@ -294,46 +348,62 @@ export default function Dashboard() {
               {allItemsWithPct
                 .filter(x => x.item.section === section || x.item.section === 'ALL')
                 .map(({ item, actual, target, pct }) => {
-                  const clr = achievementColor(pct);
-                  const status   = pct == null ? null : pct >= 90 ? 'On Track' : pct >= 70 ? 'At Risk' : 'Below';
-                  const statusBg = pct == null ? null : pct >= 90 ? 'var(--green-dim)' : pct >= 70 ? 'var(--amber-dim)' : 'var(--red-dim)';
+                  const clr        = achievementColor(pct);
+                  const status     = pct == null ? null : pct >= 90 ? 'On Track' : pct >= 70 ? 'At Risk' : 'Below';
+                  const statusBg   = pct == null ? null : pct >= 90 ? 'var(--green-dim)' : pct >= 70 ? 'var(--amber-dim)' : 'var(--red-dim)';
+                  const isExpanded = expandedId === item.id;
+                  const drillData  = isExpanded ? getDrillDown(item) : null;
                   return (
-                    <tr key={item.id} style={{ cursor: 'pointer' }}
-                      onClick={() => navigate(`/category/${item.category}`)}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg2)'}
-                      onMouseLeave={e => e.currentTarget.style.background = ''}
-                    >
-                      <td style={{ color: 'var(--muted)', fontSize: 11 }}>{item.kpi_no}</td>
-                      <td>
-                        <div style={{ fontWeight: 500, fontSize: 12 }}>{item.name_en}</div>
-                        <div style={{ fontSize: 10, color: 'var(--muted)' }}>{item.commitment}</div>
-                      </td>
-                      <td style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 12 }}>
-                        {actual != null ? formatValue(item, actual) : <span style={{ color: 'var(--muted)' }}>—</span>}
-                      </td>
-                      <td style={{ color: 'var(--muted)', fontSize: 12 }}>
-                        {target != null ? formatValue(item, target) : '—'}
-                      </td>
-                      <td>
-                        {pct != null ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ flex: 1, height: 5, background: 'var(--border2)', borderRadius: 3 }}>
-                              <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: clr, borderRadius: 3 }} />
-                            </div>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)', minWidth: 36, textAlign: 'right' }}>
-                              {Math.round(pct)}%
-                            </span>
+                    <>
+                      <tr key={item.id}
+                        style={{ cursor: 'pointer', background: isExpanded ? 'var(--bg2)' : '' }}
+                        onClick={() => toggleExpand(item.id)}
+                        onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = 'var(--bg2)'; }}
+                        onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = ''; }}
+                      >
+                        <td style={{ color: 'var(--muted)', fontSize: 11 }}>{item.kpi_no}</td>
+                        <td>
+                          <div style={{ fontWeight: 500, fontSize: 12 }}>
+                            {isExpanded ? '▼ ' : '▶ '}{item.name_en}
                           </div>
-                        ) : <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>}
-                      </td>
-                      <td>
-                        {status && (
-                          <span style={{ fontSize: 11, fontWeight: 600, color: clr, background: statusBg, padding: '3px 8px', borderRadius: 6 }}>
-                            {status}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
+                          <div style={{ fontSize: 10, color: 'var(--muted)' }}>{item.commitment}</div>
+                        </td>
+                        <td style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 12 }}>
+                          {actual != null ? formatValue(item, actual) : <span style={{ color: 'var(--muted)' }}>—</span>}
+                        </td>
+                        <td style={{ color: 'var(--muted)', fontSize: 12 }}>
+                          {target != null ? formatValue(item, target) : '—'}
+                        </td>
+                        <td>
+                          {pct != null ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <div style={{ flex: 1, height: 5, background: 'var(--border2)', borderRadius: 3 }}>
+                                <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: clr, borderRadius: 3 }} />
+                              </div>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: clr, fontFamily: 'var(--font-display)', minWidth: 36, textAlign: 'right' }}>
+                                {Math.round(pct)}%
+                              </span>
+                            </div>
+                          ) : <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>}
+                        </td>
+                        <td>
+                          {status && (
+                            <span style={{ fontSize: 11, fontWeight: 600, color: clr, background: statusBg, padding: '3px 8px', borderRadius: 6 }}>
+                              {status}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr key={`${item.id}-drill`}>
+                          <td colSpan={6} style={{ padding: 0, borderTop: 'none' }}>
+                            {drillData
+                              ? <DrillDownPanel data={drillData} />
+                              : <div style={{ padding: '10px 36px', fontSize: 11, color: 'var(--muted)' }}>ไม่มีข้อมูลดิบสำหรับเดือนนี้</div>}
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   );
                 })}
             </tbody>
