@@ -227,7 +227,7 @@ export default function DataEntry() {
           {/* Manual items */}
           {groupedManual.length > 0 && (
             <>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text2)', letterSpacing: 1 }}>📝 กรอกตรง (Safety / Maintenance)</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text2)', letterSpacing: 1 }}>📝 กรอกตรง</div>
               {groupedManual.map(({ cat, label, items: gi }) => (
                 <div key={cat} className="card" style={{ overflow: 'hidden' }}>
                   <div style={{ padding: '10px 16px', background: 'var(--bg2)', borderBottom: '1px solid var(--border)', fontSize: 13, fontWeight: 700, color: 'var(--text2)' }}>
