@@ -120,12 +120,19 @@ export function computeActuals(raw, items, allRaws, month) {
       }
     }
 
-    // PPM
+    // PPM + OEE manual fallback
     if (['PD3', 'PD4'].includes(sec)) {
       const ppmNo = sec === 'PD3' ? '3.4' : '3.5';
       const ppmId = findId(ppmNo);
       if (ppmId && (raw.ppm_production || 0) > 0 && raw.ppm_defect != null)
         res[ppmId] = raw.ppm_defect / raw.ppm_production * 1e6;
+
+      // OEE manual fallback — written to kpi_actuals; GSheet overlay takes precedence when available
+      const oeeNo        = sec === 'PD3' ? '3.6' : '3.7';
+      const oeeManualKey = sec === 'PD3' ? 'oee_pd3_manual' : 'oee_pd4_manual';
+      const oeeId        = findId(oeeNo);
+      if (oeeId && raw[oeeManualKey] != null)
+        res[oeeId] = raw[oeeManualKey];
     }
 
     // JIG-specific
@@ -174,6 +181,12 @@ export function computeActuals(raw, items, allRaws, month) {
     const ncId = findId(ncNo);
     if (ncId && raw.iso_nc_major != null)
       res[ncId] = raw.iso_nc_major;
+
+    // Serious Accidents — computed from acc_serious raw field
+    const accNo = sec === 'PD3' ? '4.1a' : sec === 'PD4' ? '4.1b' : '4.1c';
+    const accId = findId(accNo);
+    if (accId && raw.acc_serious != null)
+      res[accId] = raw.acc_serious;
 
     // Sales / Head — cumulative YTD
     const shNo = sec === 'PD3' ? '4.2a' : sec === 'PD4' ? '4.2b' : '4.2c';

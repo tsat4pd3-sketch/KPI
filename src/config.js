@@ -65,6 +65,7 @@ const ohFields = [
 const p100Field = { key: 'p100_amount', label: '100P & Customer Returns — มูลค่ารวม (Baht)' };
 
 const safetySubFields = [
+  { key: 'acc_serious',         label: 'Serious Accidents (case)',          integer: true },
   { key: 'acc_absent_3d_plus',  label: 'Absent Accidents > 3 Days (case)', integer: true },
   { key: 'acc_absent_3d_minus', label: 'Absent Accidents < 3 Days (case)', integer: true },
   { key: 'acc_minor',           label: 'Minor Injuries (case)',             integer: true },
@@ -110,6 +111,9 @@ export const RAW_FIELD_GROUPS = {
       { key: 'ppm_defect',     label: 'Defect Parts (pcs)',       integer: true },
       { key: 'ppm_production', label: 'Total Production (pcs)',   integer: true },
     ]},
+    { group: 'OEE Manual Fallback (กรอกถ้า GSheet ไม่ทำงาน)', fields: [
+      { key: 'oee_pd3_manual', label: 'OEE PD3 (%)' },
+    ]},
     { group: 'Growth — QCC & Engineering Day', fields: [...qccFields, ...engDayFields] },
     { group: 'Growth — Manpower & Training', fields: [
       { key: 'manpower_section',     label: 'ACTUAL Man PD3 (Permanent + Outsource)', integer: true },
@@ -138,6 +142,9 @@ export const RAW_FIELD_GROUPS = {
     { group: 'Internal Defect (PPM)', fields: [
       { key: 'ppm_defect',     label: 'Defect Parts (pcs)',     integer: true },
       { key: 'ppm_production', label: 'Total Production (pcs)', integer: true },
+    ]},
+    { group: 'OEE Manual Fallback (กรอกถ้า GSheet ไม่ทำงาน)', fields: [
+      { key: 'oee_pd4_manual', label: 'OEE PD4 (%)' },
     ]},
     { group: 'Growth — QCC & Engineering Day', fields: [...qccFields, ...engDayFields] },
     { group: 'Growth — Manpower & Training', fields: [
