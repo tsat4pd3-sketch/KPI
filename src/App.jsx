@@ -9,6 +9,7 @@ import CategoryPage from './pages/CategoryPage';
 import DataEntry from './pages/DataEntry';
 import TargetSetting from './pages/TargetSetting';
 import TrendPage from './pages/TrendPage';
+import GameSim from './pages/GameSim';
 
 export const AppCtx = createContext({});
 export const useApp = () => useContext(AppCtx);
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/entry" element={<DataEntry />} />
             <Route path="/targets" element={<TargetSetting />} />
             <Route path="/trends" element={<TrendPage />} />
+            <Route path="/gamesim" element={<GameSim />} />
           </Route>
         </Routes>
       </HashRouter>
