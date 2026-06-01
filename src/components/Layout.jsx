@@ -8,6 +8,7 @@ const NAV = [
   { to: '/trends',  icon: '📈', label: 'แนวโน้ม KPI' },
   { to: '/entry',   icon: '📝', label: 'กรอกข้อมูล' },
   { to: '/targets', icon: '🎯', label: 'ตั้งค่าเป้าหมาย' },
+  { to: '/gamesim', icon: '🎮', label: 'Agent Sim' },
 ];
 
 // Sidebar always uses TSG forest green — independent of light/dark theme
@@ -82,7 +83,6 @@ export default function Layout() {
         {/* Brand header */}
         <div style={{ padding: '20px 6px 16px', borderBottom: `1px solid ${SB.border}`, marginBottom: 10, whiteSpace: 'nowrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 5 }}>
-            {/* TSG triangle mark */}
             <div style={{ width: 30, height: 30, background: SB.orange, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <svg width="14" height="13" viewBox="0 0 14 13" fill="none">
                 <path d="M7 1L13 12H1L7 1Z" fill="rgba(255,255,255,0.95)"/>
