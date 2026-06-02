@@ -12,7 +12,7 @@ import { loadAgents } from '../config/agentDefaults';
 const SHEET = {
   url: '/sprites.png',
   cols: 5, rows: 3,
-  w: 1500, h: 900,
+  w: 1408, h: 768,
   get cw() { return this.w / this.cols; },
   get ch() { return this.h / this.rows; },
 };
@@ -22,11 +22,10 @@ const SHEET = {
 // Row 0: car | conveyor/AGV | battery-station | robot-arm
 // Row 1: engineer+machine scenes
 // Row 2: small icons
-// ← Adjust w/h after upload to match actual image size
 const SHEET2 = {
   url: '/sprites2.png',
   cols: 4, rows: 3,
-  w: 1480, h: 870,
+  w: 1408, h: 768,
   get cw() { return this.w / this.cols; },
   get ch() { return this.h / this.rows; },
 };
