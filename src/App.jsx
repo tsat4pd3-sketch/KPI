@@ -10,6 +10,7 @@ import DataEntry from './pages/DataEntry';
 import TargetSetting from './pages/TargetSetting';
 import TrendPage from './pages/TrendPage';
 import GameSim from './pages/GameSim';
+import AgentSetup from './pages/AgentSetup';
 
 export const AppCtx = createContext({});
 export const useApp = () => useContext(AppCtx);
@@ -41,12 +42,7 @@ export default function App() {
     </div>
   );
 
-  const ctx = {
-    year, setYear,
-    theme,
-    toggleTheme: () => setTheme(t => t === 'dark' ? 'light' : 'dark'),
-    session,
-  };
+  const ctx = { year, setYear, theme, toggleTheme: () => setTheme(t => t === 'dark' ? 'light' : 'dark'), session };
 
   return (
     <AppCtx.Provider value={ctx}>
@@ -61,6 +57,7 @@ export default function App() {
             <Route path="/targets" element={<TargetSetting />} />
             <Route path="/trends" element={<TrendPage />} />
             <Route path="/gamesim" element={<GameSim />} />
+            <Route path="/agentsetup" element={<AgentSetup />} />
           </Route>
         </Routes>
       </HashRouter>
