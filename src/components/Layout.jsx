@@ -9,9 +9,9 @@ const NAV = [
   { to: '/entry',   icon: '📝', label: 'กรอกข้อมูล' },
   { to: '/targets', icon: '🎯', label: 'ตั้งค่าเป้าหมาย' },
   { to: '/gamesim', icon: '🎮', label: 'Agent Sim' },
+  { to: '/agentsetup', icon: '⚙️', label: 'Agent Setup' },
 ];
 
-// Sidebar always uses TSG forest green — independent of light/dark theme
 const SB = {
   bg:     '#0d3d14',
   hover:  'rgba(255,255,255,0.08)',
@@ -44,7 +44,6 @@ export default function Layout() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
-      {/* Toggle button */}
       <button
         onClick={() => setOpen(o => !o)}
         style={{
@@ -61,15 +60,11 @@ export default function Layout() {
         {open ? '✕' : '☰'}
       </button>
 
-      {/* Mobile backdrop */}
       {isMobile && open && (
-        <div
-          onClick={() => setOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 990 }}
-        />
+        <div onClick={() => setOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 990 }}/>
       )}
 
-      {/* Sidebar — always TSG forest green */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, height: '100vh',
         width: open ? W : 0,
@@ -80,7 +75,6 @@ export default function Layout() {
         transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)',
         zIndex: 1000,
       }}>
-        {/* Brand header */}
         <div style={{ padding: '20px 6px 16px', borderBottom: `1px solid ${SB.border}`, marginBottom: 10, whiteSpace: 'nowrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 5 }}>
             <div style={{ width: 30, height: 30, background: SB.orange, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -90,57 +84,41 @@ export default function Layout() {
               </svg>
             </div>
             <div>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 13, color: SB.text, lineHeight: 1.15, letterSpacing: '0.06em' }}>
-                THAI SUMMIT
-              </div>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 13, color: SB.text, lineHeight: 1.15, letterSpacing: '0.06em' }}>THAI SUMMIT</div>
               <div style={{ fontSize: 9, color: SB.muted, letterSpacing: '0.14em', textTransform: 'uppercase' }}>GROUP VX</div>
             </div>
           </div>
           <div style={{ fontSize: 9, color: SB.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginLeft: 39 }}>KPI · BALANCED SCORECARD</div>
         </div>
 
-        {/* Year selector */}
         <div style={{ padding: '8px 6px 14px', borderBottom: `1px solid ${SB.border}`, marginBottom: 8, whiteSpace: 'nowrap' }}>
           <div style={{ fontSize: 9, color: SB.muted, marginBottom: 5, letterSpacing: '0.1em', textTransform: 'uppercase' }}>ปีงบประมาณ</div>
-          <select
-            value={year}
-            onChange={e => setYear(+e.target.value)}
-            style={{
-              fontSize: 14, fontWeight: 700, padding: '6px 10px',
-              background: 'rgba(255,255,255,0.1)',
-              color: SB.text,
-              border: `1px solid ${SB.border}`,
-              borderRadius: 4,
-              width: '100%',
-            }}
-          >
-            {[2024, 2025, 2026, 2027].map(y => (
+          <select value={year} onChange={e => setYear(+e.target.value)} style={{
+            fontSize: 14, fontWeight: 700, padding: '6px 10px',
+            background: 'rgba(255,255,255,0.1)', color: SB.text,
+            border: `1px solid ${SB.border}`, borderRadius: 4, width: '100%',
+          }}>
+            {[2024,2025,2026,2027].map(y => (
               <option key={y} value={y} style={{ background: SB.bg, color: SB.text }}>{y}</option>
             ))}
           </select>
         </div>
 
-        {/* Navigation */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
           {NAV.map(({ to, icon, label }) => {
             const isActive = location.pathname === to;
             return (
-              <Link
-                key={to}
-                to={to}
+              <Link key={to} to={to}
                 onClick={() => isMobile && setOpen(false)}
                 style={{
                   color: isActive ? SB.text : SB.muted,
-                  textDecoration: 'none',
-                  padding: '10px 12px',
-                  borderRadius: 5,
+                  textDecoration: 'none', padding: '10px 12px', borderRadius: 5,
                   display: 'flex', alignItems: 'center', gap: 10,
                   fontSize: 13, fontWeight: isActive ? 700 : 500,
                   background: isActive ? SB.active : 'transparent',
                   borderLeft: isActive ? `3px solid ${SB.orange}` : '3px solid transparent',
                   transition: 'background 0.15s, color 0.15s',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
+                  whiteSpace: 'nowrap', cursor: 'pointer',
                 }}
                 onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = SB.hover; e.currentTarget.style.color = SB.text; }}
                 onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = SB.muted; } }}
@@ -152,28 +130,23 @@ export default function Layout() {
           })}
         </div>
 
-        {/* Footer */}
         <div style={{ borderTop: `1px solid ${SB.border}`, paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <button
-            onClick={toggleTheme}
-            style={{
-              background: 'transparent', border: 'none', width: '100%', textAlign: 'left',
-              color: SB.muted, padding: '9px 12px', borderRadius: 5, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 10, fontSize: 12,
-            }}
+          <button onClick={toggleTheme} style={{
+            background: 'transparent', border: 'none', width: '100%', textAlign: 'left',
+            color: SB.muted, padding: '9px 12px', borderRadius: 5, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 10, fontSize: 12,
+          }}
             onMouseEnter={e => { e.currentTarget.style.background = SB.hover; e.currentTarget.style.color = SB.text; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = SB.muted; }}
           >
             <span style={{ fontSize: 14 }}>{theme === 'dark' ? '☀️' : '🌙'}</span>
             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
-          <button
-            onClick={logout}
-            style={{
-              background: 'transparent', border: 'none', width: '100%', textAlign: 'left',
-              color: 'rgba(255,120,80,0.75)', padding: '9px 12px', borderRadius: 5, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 10, fontSize: 12,
-            }}
+          <button onClick={logout} style={{
+            background: 'transparent', border: 'none', width: '100%', textAlign: 'left',
+            color: 'rgba(255,120,80,0.75)', padding: '9px 12px', borderRadius: 5, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 10, fontSize: 12,
+          }}
             onMouseEnter={e => { e.currentTarget.style.background = SB.hover; e.currentTarget.style.color = '#ff8060'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,120,80,0.75)'; }}
           >
@@ -183,7 +156,6 @@ export default function Layout() {
         </div>
       </nav>
 
-      {/* Main */}
       <main style={{
         flex: 1,
         marginLeft: !isMobile && open ? W : 0,
