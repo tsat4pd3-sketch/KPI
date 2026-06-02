@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { loadAgents } from '../config/agentDefaults';
 
-// ── Sprite sheet config ────────────────────────────────────────
+// ── Sprite sheet config ──────────────────────────────────────────
 // Row 0: engineer (stand, walk, blueprint, tablet, wave)
 // Row 1: robot    (wrench, box, carry, charge, compute)
 // Row 2: assets   (car, arm, charger, delivery-bot, gear)
@@ -31,7 +31,7 @@ const MACHINES = [
 
 const AGENT_STATE = { IDLE: 'idle', GOING: 'going', WORKING: 'working', LEAVING: 'leaving' };
 
-// ── CSS sprite renderer ────────────────────────────────────────
+// ── CSS sprite renderer ──────────────────────────────────────────
 function SheetSprite({ col, row, size, flipX = false }) {
   const scale = size / SHEET.cw;
   return (
@@ -59,7 +59,7 @@ function SpriteAsset({ assetKey, size = 80 }) {
   return <SheetSprite col={ASSET_COLS[assetKey] ?? 0} row={2} size={size} />;
 }
 
-// ── Work progress ring ─────────────────────────────────────────
+// ── Work progress ring ───────────────────────────────────────────
 function WorkRing({ progress, color }) {
   const r = 15, circ = 2 * Math.PI * r;
   return (
@@ -75,7 +75,7 @@ function WorkRing({ progress, color }) {
   );
 }
 
-// ── Speech bubble ──────────────────────────────────────────────
+// ── Speech bubble ────────────────────────────────────────────────
 function SpeechBubble({ message, color }) {
   return (
     <motion.div
@@ -85,10 +85,10 @@ function SpeechBubble({ message, color }) {
       transition={{ duration: .18 }}
       style={{
         position: 'absolute', bottom: '115%', left: '50%', transform: 'translateX(-50%)',
-        background: 'rgba(6,8,14,0.93)', color, border: `1px solid ${color}`,
+        background: 'rgba(4,10,6,0.95)', color, border: `1px solid ${color}`,
         borderRadius: 8, padding: '4px 9px', fontSize: 10, fontWeight: 700,
         whiteSpace: 'nowrap', pointerEvents: 'none',
-        boxShadow: `0 0 10px ${color}55`, zIndex: 20, letterSpacing: '.03em',
+        boxShadow: `0 0 12px ${color}66`, zIndex: 20, letterSpacing: '.03em',
       }}
     >
       {message}
@@ -101,7 +101,7 @@ function SpeechBubble({ message, color }) {
   );
 }
 
-// ── Moving agent (state machine) ───────────────────────────────
+// ── Agent sprite (state machine) ─────────────────────────────────
 function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineChange }) {
   const [rd, setRd] = useState({
     pos: { x: 100, y: 100 }, frame: 0, flipX: false,
@@ -122,9 +122,8 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
     };
   }
 
-  // Keep latest props in refs so the RAF loop never goes stale
-  const floorRef = useRef({ w: floorW, h: floorH });
-  useEffect(() => { floorRef.current = { w: floorW, h: floorH }; }, [floorW, floorH]);
+  const floorRef2 = useRef({ w: floorW, h: floorH });
+  useEffect(() => { floorRef2.current = { w: floorW, h: floorH }; }, [floorW, floorH]);
   const machRef = useRef(machinesPixel);
   useEffect(() => { machRef.current = machinesPixel; }, [machinesPixel]);
   const cbRef = useRef(onMachineChange);
@@ -137,22 +136,21 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
 
   useEffect(() => {
     const tick = (now) => {
-      const dt = Math.min((now - lastRef.current) / 16, 3);
+      const dt  = Math.min((now - lastRef.current) / 16, 3);
       lastRef.current = now;
       const st  = stRef.current;
       const ag  = agentRef.current;
-      const fl  = floorRef.current;
+      const fl  = floorRef2.current;
       const mps = machRef.current;
       const SPEED  = ag.speed * 2.8;
       const ARRIVE = 22;
 
-      // Walk frame toggle
+      // Walk frame
       st.frameTimer += dt;
       if (st.frameTimer > 28) {
         st.frameTimer = 0;
-        if (st.state === AGENT_STATE.GOING || st.state === AGENT_STATE.LEAVING) {
+        if (st.state === AGENT_STATE.GOING || st.state === AGENT_STATE.LEAVING)
           st.frame = 1 - st.frame;
-        }
       }
 
       // Message cycle
@@ -166,7 +164,7 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
         }, 180);
       }
 
-      // ── State machine ──
+      // State machine
       if (st.state === AGENT_STATE.IDLE) {
         st.idleTimer -= dt;
         if (st.idleTimer <= 0 && mps.length > 0) {
@@ -179,7 +177,6 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
           st.machineIdx = mi;
           st.state = AGENT_STATE.GOING;
         }
-
       } else if (st.state === AGENT_STATE.GOING) {
         const dx = st.target.x - st.pos.x;
         const dy = st.target.y - st.pos.y;
@@ -198,7 +195,6 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
           st.pos = { x: st.pos.x + (dx / dist) * spd, y: st.pos.y + (dy / dist) * spd };
           st.flipX = dx < 0;
         }
-
       } else if (st.state === AGENT_STATE.WORKING) {
         st.workElapsed += dt;
         st.workProgress = Math.min(st.workElapsed / st.workDuration, 1);
@@ -214,7 +210,6 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
           st.machineIdx = null;
           st.state = AGENT_STATE.LEAVING;
         }
-
       } else if (st.state === AGENT_STATE.LEAVING) {
         const dx = st.target.x - st.pos.x;
         const dy = st.target.y - st.pos.y;
@@ -231,21 +226,16 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
       }
 
       setRd({
-        pos: { ...st.pos },
-        frame: st.frame,
-        flipX: st.flipX,
-        state: st.state,
-        msgIdx: st.msgIdx,
-        showMsg: st.showMsg,
+        pos: { ...st.pos }, frame: st.frame, flipX: st.flipX,
+        state: st.state, msgIdx: st.msgIdx, showMsg: st.showMsg,
         workProgress: st.workProgress,
       });
 
       animRef.current = requestAnimationFrame(tick);
     };
-
     animRef.current = requestAnimationFrame(tick);
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, []); // RAF loop runs once; all props accessed via refs
+  }, []);
 
   const isGood    = agent.value >= agent.target;
   const sc        = isGood ? '#4ade80' : '#f87171';
@@ -255,7 +245,7 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
   return (
     <div
       onClick={() => onClick(agent)}
-      onMouseEnter={e => { e.currentTarget.style.filter = `drop-shadow(0 0 10px ${agent.color}aa)`; }}
+      onMouseEnter={e => { e.currentTarget.style.filter = `drop-shadow(0 0 12px ${agent.color}cc)`; }}
       onMouseLeave={e => { e.currentTarget.style.filter = 'none'; }}
       style={{
         position: 'absolute', left: rd.pos.x, top: rd.pos.y,
@@ -268,25 +258,23 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
         {rd.showMsg && <SpeechBubble key={rd.msgIdx} message={agent.messages[rd.msgIdx]} color={agent.color} />}
       </AnimatePresence>
 
-      {/* KPI badge */}
       <div style={{
         background: isGood ? agent.color : '#f87171', color: '#000',
         fontSize: 9, fontWeight: 800, padding: '1px 7px', borderRadius: 4, marginBottom: 2,
-        boxShadow: `0 1px 6px ${isGood ? agent.color : '#f87171'}55`,
+        boxShadow: `0 0 8px ${isGood ? agent.color : '#f87171'}88`,
       }}>{agent.value}{agent.unit}</div>
 
-      {/* Work progress ring */}
       {isWorking && <WorkRing progress={rd.workProgress} color={agent.color} />}
 
       <SpriteChar type={agent.type} frame={rd.frame} working={isWorking} size={72} flipX={rd.flipX} />
 
       <div style={{
         fontSize: 9, color: agent.color, fontWeight: 700, marginTop: 1,
-        textShadow: '0 1px 4px rgba(0,0,0,.9)', textAlign: 'center', lineHeight: 1.2,
+        textShadow: `0 0 8px ${agent.color}88`, textAlign: 'center', lineHeight: 1.2,
       }}>{agent.name}</div>
 
-      <div style={{ fontSize: 7.5, color: 'var(--muted)', marginTop: 1, opacity: .75 }}>
-        {isWorking ? '⚡ กำลังทำงาน' : isMoving ? '🚶 กำลังเดิน' : '💤 รอ'}
+      <div style={{ fontSize: 7.5, color: '#6ee7a0', marginTop: 1, opacity: .8 }}>
+        {isWorking ? '⚡ ทำงาน' : isMoving ? '🚶 เดิน' : '💤 รอ'}
       </div>
 
       <div style={{
@@ -297,7 +285,7 @@ function AgentSprite({ agent, floorW, floorH, machinesPixel, onClick, onMachineC
   );
 }
 
-// ── Agent detail modal ─────────────────────────────────────────
+// ── Agent detail modal ───────────────────────────────────────────
 function AgentDetail({ agent, onClose }) {
   const isGood = agent.value >= agent.target;
   return (
@@ -345,7 +333,7 @@ function AgentDetail({ agent, onClose }) {
   );
 }
 
-// ── Activity log item ──────────────────────────────────────────
+// ── Activity log item ────────────────────────────────────────────
 function LogItem({ item }) {
   return (
     <motion.div
@@ -355,17 +343,17 @@ function LogItem({ item }) {
       style={{
         display: 'flex', flexDirection: 'column', gap: 1, padding: '5px 8px',
         borderLeft: `3px solid ${item.color}`, marginBottom: 4,
-        background: 'var(--bg3)', borderRadius: '0 6px 6px 0',
+        background: 'rgba(10,20,12,0.8)', borderRadius: '0 6px 6px 0',
       }}
     >
       <div style={{ fontSize: 10, fontWeight: 700, color: item.color, lineHeight: 1.2 }}>{item.agentName}</div>
-      <div style={{ fontSize: 9, color: 'var(--muted)', lineHeight: 1.2 }}>{item.task} · {item.machineName}</div>
-      <div style={{ fontSize: 8, color: 'var(--muted)', opacity: .6 }}>{item.time}</div>
+      <div style={{ fontSize: 9, color: '#6ee7a0', lineHeight: 1.2 }}>{item.task} · {item.machineName}</div>
+      <div style={{ fontSize: 8, color: '#4a7a5a', opacity: .9 }}>{item.time}</div>
     </motion.div>
   );
 }
 
-// ── Main page ──────────────────────────────────────────────────
+// ── Main page ────────────────────────────────────────────────────
 export default function GameSim() {
   const [agents]           = useState(loadAgents);
   const [selected, setSelected]   = useState(null);
@@ -398,12 +386,11 @@ export default function GameSim() {
 
   const handleMachineChange = useCallback((machineIdx, agentId, leavingId) => {
     if (agentId) {
-      // Agent arrived
       setMachineOccupants(prev => ({ ...prev, [machineIdx]: agentId }));
       const ag = agentsRef.current.find(a => a.id === agentId);
       const machine = MACHINES[machineIdx];
       if (ag && machine) {
-        const now = new Date();
+        const now  = new Date();
         const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         setActivityLog(prev => [
           { id: `${agentId}-${Date.now()}`, agentName: ag.name, machineName: machine.label, task: machine.task, color: ag.color, time },
@@ -411,7 +398,6 @@ export default function GameSim() {
         ]);
       }
     } else {
-      // Agent left — clear only if still this agent
       setMachineOccupants(prev => {
         if (prev[machineIdx] === leavingId) return { ...prev, [machineIdx]: null };
         return prev;
@@ -420,7 +406,11 @@ export default function GameSim() {
   }, []);
 
   return (
-    <div style={{ height: 'calc(100vh - 58px)', display: 'flex', flexDirection: 'column', padding: 14, overflow: 'hidden', boxSizing: 'border-box' }}>
+    <div style={{
+      height: 'calc(100vh - 58px)', display: 'flex', flexDirection: 'column',
+      padding: 14, overflow: 'hidden', boxSizing: 'border-box',
+      background: '#060c07',
+    }}>
 
       {/* Header */}
       <div style={{ marginBottom: 10, flexShrink: 0 }}>
@@ -428,29 +418,33 @@ export default function GameSim() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 22 }}>🎮</span>
             <div>
-              <h1 style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)', lineHeight: 1, margin: 0 }}>KPI Agent Sim</h1>
-              <p style={{ fontSize: 11, color: 'var(--muted)', margin: 0 }}>Agent เดินทำงาน · แตะตัวละครเพื่อดู KPI</p>
+              <h1 style={{ fontSize: 17, fontWeight: 800, color: '#7dffb0', lineHeight: 1, margin: 0, textShadow: '0 0 20px #3dff8055' }}>KPI Agent Sim</h1>
+              <p style={{ fontSize: 11, color: '#4a9c6a', margin: 0 }}>Agent เดินทำงาน · แตะตัวละครเพื่อดู KPI</p>
             </div>
           </div>
           <Link to="/agentsetup" style={{
             display: 'flex', alignItems: 'center', gap: 5,
-            padding: '6px 12px', background: 'var(--accent-dim)', border: '1px solid var(--accent)',
-            borderRadius: 8, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: 'var(--accent)',
+            padding: '6px 12px',
+            background: 'rgba(61,214,92,0.1)',
+            border: '1px solid rgba(61,214,92,0.35)',
+            borderRadius: 8, textDecoration: 'none', fontSize: 12, fontWeight: 700,
+            color: '#3dd65c',
           }}>⚙️ ตั้งค่า Agent</Link>
         </div>
 
-        {/* KPI status chips */}
+        {/* KPI chips */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {agents.map(a => {
             const good     = a.value >= a.target;
-            const occupied = machineOccupants[Object.keys(machineOccupants).find(k => machineOccupants[k] === a.id)] === a.id;
+            const occupied = Object.values(machineOccupants).includes(a.id);
             return (
               <button key={a.id} onClick={() => setSelected(a)} style={{
                 display: 'flex', alignItems: 'center', gap: 5, padding: '3px 9px',
-                background: occupied ? `${a.color}22` : 'var(--card)',
-                border: `1px solid ${occupied ? a.color : a.color + '50'}`,
+                background: occupied ? `${a.color}18` : 'rgba(10,22,13,0.8)',
+                border: `1px solid ${occupied ? a.color : a.color + '40'}`,
                 borderRadius: 20, cursor: 'pointer', fontSize: 11, fontWeight: 600,
-                color: good ? 'var(--green)' : 'var(--red)',
+                color: good ? '#4ade80' : '#f87171',
+                boxShadow: occupied ? `0 0 8px ${a.color}44` : 'none',
               }}>
                 {occupied && <span style={{ fontSize: 8, color: a.color }}>⚡</span>}
                 <span style={{ fontSize: 13 }}>{a.type === 'robot' ? '🤖' : a.type === 'engineer' ? '👷' : '💼'}</span>
@@ -464,16 +458,61 @@ export default function GameSim() {
       {/* Floor + log */}
       <div style={{ flex: 1, display: 'flex', gap: 10, overflow: 'hidden', minHeight: 0 }}>
 
-        {/* Factory floor */}
+        {/* ── Factory floor ── */}
         <div ref={floorRef} style={{
-          flex: 1, position: 'relative', background: 'var(--bg3)',
-          border: '2px solid var(--border2)', borderRadius: 12, overflow: 'hidden', boxShadow: 'var(--shadow-md)',
+          flex: 1, position: 'relative',
+          background: 'linear-gradient(150deg, #0c1f0e 0%, #060d07 45%, #0a180b 100%)',
+          border: '1px solid rgba(52,214,92,0.22)',
+          borderRadius: 14, overflow: 'hidden',
+          boxShadow: '0 0 60px rgba(0,200,60,0.08), 0 0 0 1px rgba(52,214,92,0.08)',
         }}>
-          {/* Grid texture */}
+
+          {/* Floor tile grid – dual level */}
           <div style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: 'linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px)',
-            backgroundSize: '40px 40px', opacity: .5,
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: [
+              'linear-gradient(rgba(52,255,100,0.055) 1px, transparent 1px)',
+              'linear-gradient(90deg, rgba(52,255,100,0.055) 1px, transparent 1px)',
+              'linear-gradient(rgba(52,255,100,0.02) 1px, transparent 1px)',
+              'linear-gradient(90deg, rgba(52,255,100,0.02) 1px, transparent 1px)',
+            ].join(','),
+            backgroundSize: '120px 120px, 120px 120px, 40px 40px, 40px 40px',
+          }} />
+
+          {/* Ambient center glow */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'radial-gradient(ellipse 70% 55% at 50% 45%, rgba(20,140,55,0.13) 0%, transparent 75%)',
+          }} />
+
+          {/* Corner accent – top-left green */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, width: 220, height: 220, pointerEvents: 'none',
+            background: 'radial-gradient(circle at 0% 0%, rgba(52,214,92,0.09) 0%, transparent 65%)',
+          }} />
+
+          {/* Corner accent – bottom-right blue */}
+          <div style={{
+            position: 'absolute', bottom: 0, right: 0, width: 200, height: 200, pointerEvents: 'none',
+            background: 'radial-gradient(circle at 100% 100%, rgba(96,165,250,0.08) 0%, transparent 65%)',
+          }} />
+
+          {/* Corner accent – top-right teal */}
+          <div style={{
+            position: 'absolute', top: 0, right: 0, width: 160, height: 160, pointerEvents: 'none',
+            background: 'radial-gradient(circle at 100% 0%, rgba(52,211,153,0.07) 0%, transparent 65%)',
+          }} />
+
+          {/* Edge vignette */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            boxShadow: 'inset 0 0 80px rgba(0,0,0,0.55)',
+          }} />
+
+          {/* Scanline overlay (subtle) */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none', opacity: .025,
+            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,80,1) 2px, rgba(0,255,80,1) 3px)',
           }} />
 
           {/* Machines */}
@@ -485,15 +524,16 @@ export default function GameSim() {
                 position: 'absolute', left: m.x, top: m.y, pointerEvents: 'none',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 filter: occupant
-                  ? `drop-shadow(0 0 14px ${occupant.color}bb)`
-                  : `drop-shadow(0 0 8px ${m.color}55)`,
+                  ? `drop-shadow(0 0 16px ${occupant.color}cc) brightness(1.15)`
+                  : `drop-shadow(0 0 10px ${m.color}66)`,
                 transition: 'filter .4s',
               }}>
                 {occupant && (
                   <div style={{
                     fontSize: 7, color: occupant.color, fontWeight: 800,
-                    background: `${occupant.color}22`, border: `1px solid ${occupant.color}66`,
+                    background: `${occupant.color}1a`, border: `1px solid ${occupant.color}55`,
                     borderRadius: 4, padding: '1px 5px', marginBottom: 2,
+                    boxShadow: `0 0 6px ${occupant.color}44`,
                     animation: 'statusPulse 1.4s ease-in-out infinite',
                   }}>⚡ {occupant.name}</div>
                 )}
@@ -501,7 +541,8 @@ export default function GameSim() {
                 <div style={{
                   fontSize: 8, color: occupant ? occupant.color : m.color,
                   fontWeight: 800, letterSpacing: '.06em', marginTop: 2, textAlign: 'center',
-                  textShadow: '0 1px 3px rgba(0,0,0,.8)', transition: 'color .4s',
+                  textShadow: `0 0 8px ${occupant ? occupant.color : m.color}88`,
+                  transition: 'color .4s',
                 }}>{m.label}</div>
               </div>
             );
@@ -517,25 +558,29 @@ export default function GameSim() {
             />
           ))}
 
-          <div style={{ position: 'absolute', bottom: 7, right: 12, fontSize: 9, color: 'var(--muted)', opacity: .5 }}>
+          <div style={{ position: 'absolute', bottom: 7, right: 12, fontSize: 9, color: '#2d6b40', opacity: .7 }}>
             Thai Summit Group · Factory Floor Simulation
           </div>
         </div>
 
-        {/* Activity log sidebar */}
+        {/* Activity log */}
         {showLog && (
           <div style={{
             width: 168, flexShrink: 0, display: 'flex', flexDirection: 'column',
-            background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden',
+            background: 'rgba(6,14,8,0.95)',
+            border: '1px solid rgba(52,214,92,0.2)',
+            borderRadius: 10, overflow: 'hidden',
+            boxShadow: '0 0 20px rgba(0,180,60,0.06)',
           }}>
             <div style={{
-              padding: '8px 10px', borderBottom: '1px solid var(--border)',
-              fontSize: 11, fontWeight: 700, color: 'var(--text)', flexShrink: 0,
+              padding: '8px 10px', borderBottom: '1px solid rgba(52,214,92,0.15)',
+              fontSize: 11, fontWeight: 700, color: '#3dd65c', flexShrink: 0,
+              textShadow: '0 0 10px #3dd65c55',
             }}>📋 Activity Log</div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 6px' }}>
               <AnimatePresence initial={false}>
                 {activityLog.length === 0
-                  ? <div style={{ fontSize: 10, color: 'var(--muted)', padding: 10, textAlign: 'center' }}>รอ Agent เริ่มทำงาน...</div>
+                  ? <div style={{ fontSize: 10, color: '#3a6b4a', padding: 10, textAlign: 'center' }}>รอ Agent เริ่มทำงาน...</div>
                   : activityLog.map(item => <LogItem key={item.id} item={item} />)
                 }
               </AnimatePresence>
