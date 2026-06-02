@@ -42,12 +42,7 @@ export default function App() {
     </div>
   );
 
-  const ctx = {
-    year, setYear,
-    theme,
-    toggleTheme: () => setTheme(t => t === 'dark' ? 'light' : 'dark'),
-    session,
-  };
+  const ctx = { year, setYear, theme, toggleTheme: () => setTheme(t => t === 'dark' ? 'light' : 'dark'), session };
 
   return (
     <AppCtx.Provider value={ctx}>
