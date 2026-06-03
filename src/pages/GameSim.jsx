@@ -3,25 +3,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { loadAgents } from '../config/agentDefaults';
 
-// ── Sprite sheet 1: engineer character ────────────────────────────
-// Upload as public/sprites.png
-// Row 0: stand | walk | hold-tablet | point-tablet | blueprint
-// Row 1: study-blueprint | carry-battery | carry-stand | hold-scan | car-scan
-// Row 2: battery | gears | tablet | multi-tool | gears-lightning
-// ← Adjust w/h after upload to match actual image size
+// ── Sprite sheet 1: engineer character (sprites1.png) ─────────────
+// 4 cols × 2 rows, 2816×1536 px
+// Row 0: stand(wrench) | walk | hold-tablet | kneeling-at-machine
+// Row 1: robot-arm-1 | robot-arm-2 | battery-station | terminal+gears
 const SHEET = {
-  url: '/sprites.png',
-  cols: 5, rows: 3,
-  w: 1408, h: 768,
+  url: '/sprites1.png',
+  cols: 4, rows: 2,
+  w: 2816, h: 1536,
   get cw() { return this.w / this.cols; },
   get ch() { return this.h / this.rows; },
 };
 
-// ── Sprite sheet 2: factory machines ────────────────────────────
-// Upload as public/sprites2.png
-// Row 0: car | conveyor/AGV | battery-station | robot-arm
-// Row 1: engineer+machine scenes
-// Row 2: small icons
+// ── Sprite sheet 2: factory machines (sprites2.png) ───────────────
+// 4 cols × 3 rows, 1408×768 px
+// Row 0: EV-car | conveyor/AGV | battery-rack | robot-arm
 const SHEET2 = {
   url: '/sprites2.png',
   cols: 4, rows: 3,
@@ -30,9 +26,10 @@ const SHEET2 = {
   get ch() { return this.h / this.rows; },
 };
 
+// sprites1.png row 0: stand=0 | walk=1 | tablet=2 | kneeling=3
 const TYPE_ROW  = { engineer: 0, manager: 0, robot: 0 };
 const WALK_COLS = { engineer: [0, 1], manager: [0, 1], robot: [0, 1] };
-const WORK_COL  = { engineer: 2, manager: 3, robot: 2 };
+const WORK_COL  = { engineer: 3, manager: 2, robot: 3 };
 
 // Factory machines → mapped to SHEET2 row 0
 const MACHINES = [
